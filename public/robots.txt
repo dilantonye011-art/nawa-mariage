@@ -1,0 +1,12 @@
+﻿User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /faq/
+Disallow: /login/
+Disallow: /register/
+Disallow: /profile/
+Disallow: /discover/
+Disallow: /matches/
+Disallow: /messages/
+
+Sitemap: https://nawamariage.com/sitemap.xml

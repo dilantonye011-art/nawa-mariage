@@ -42,7 +42,7 @@ export function useMessages(userId?: string) {
 
   const createConversation = useCallback((participantIds: string[]) => {
     if (!userId) return null;
-    const allParticipants = [...new Set([userId, ...participantIds])];
+    const allParticipants = Array.from(new Set([userId, ...participantIds]));
     const convos = JSON.parse(localStorage.getItem("nawa_conversations") || "[]");
     const existing = convos.find((c: Conversation) => c.participants.length === allParticipants.length && c.participants.every((p: string) => allParticipants.includes(p)));
     if (existing) return existing.id;

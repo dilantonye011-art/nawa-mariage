@@ -1,5 +1,10 @@
 ﻿"use client";
 import { useState, useEffect, useCallback } from "react";
+import { db } from "@/lib/firebase";
+import { 
+  collection, query, where, onSnapshot, addDoc, 
+  orderBy, doc, updateDoc 
+} from "firebase/firestore";
 import type { Message, Conversation } from "@/types";
 
 export function useMessages(userId?: string) {
@@ -7,54 +12,69 @@ export function useMessages(userId?: string) {
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
 
   useEffect(() => {
-    if (typeof window === "undefined" || !userId) return;
-    const convos = JSON.parse(localStorage.getItem("nawa_conversations") || "[]");
-    const userConvos = convos.filter((c: Conversation) => c.participants.includes(userId));
-    setConversations(userConvos);
-    const msgs = JSON.parse(localStorage.getItem("nawa_messages") || "[]");
-    const msgsByConvo: Record<string, Message[]> = {};
-    userConvos.forEach((c: Conversation) => {
-      msgsByConvo[c.id] = msgs.filter((m: Message) => m.conversationId === c.id).sort((a: Message, b: Message) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    if (!userId) return;
+    const q = query(
+      collection(db, "conversations"),
+      where("participants", "array-contains", userId)
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const convos: Conversation[] = [];
+      snapshot.forEach((docSnap) => {
+        convos.push({ ...docSnap.data(), id: docSnap.id } as Conversation);
+      });
+      setConversations(convos);
     });
-    setMessages(msgsByConvo);
+    return () => unsubscribe();
   }, [userId]);
 
-  const sendMessage = useCallback((conversationId: string, content: string) => {
-    if (!userId || !content.trim()) return;
-    const newMsg: Message = {
-      id: "msg_" + Date.now(), conversationId, senderId: userId,
-      content: content.trim(), createdAt: new Date().toISOString(), read: false,
-    };
-    const allMsgs = JSON.parse(localStorage.getItem("nawa_messages") || "[]");
-    allMsgs.push(newMsg);
-    localStorage.setItem("nawa_messages", JSON.stringify(allMsgs));
-    setMessages((prev) => ({ ...prev, [conversationId]: [...(prev[conversationId] || []), newMsg] }));
+  const listenToMessages = useCallback((conversationId: string) => {
+    const q = query(
+      collection(db, "messages"),
+      where("conversationId", "==", conversationId),
+      orderBy("createdAt", "asc")
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const msgs: Message[] = [];
+      snapshot.forEach((docSnap) => {
+        msgs.push({ ...docSnap.data(), id: docSnap.id } as Message);
+      });
+      setMessages(prev => ({ ...prev, [conversationId]: msgs }));
+    });
+    return unsubscribe;
+  }, []);
 
-    const convos = JSON.parse(localStorage.getItem("nawa_conversations") || "[]");
-    const idx = convos.findIndex((c: Conversation) => c.id === conversationId);
-    if (idx >= 0) {
-      convos[idx].lastMessage = newMsg;
-      convos[idx].updatedAt = newMsg.createdAt;
-      localStorage.setItem("nawa_conversations", JSON.stringify(convos));
-      setConversations((prev) => prev.map((c) => c.id === conversationId ? { ...c, lastMessage: newMsg, updatedAt: newMsg.createdAt } : c));
+  const sendMessage = useCallback(async (conversationId: string, content: string) => {
+    if (!userId || !content.trim()) return;
+    try {
+      await addDoc(collection(db, "messages"), {
+        conversationId, senderId: userId, content: content.trim(),
+        createdAt: new Date().toISOString(), read: false,
+      });
+      await updateDoc(doc(db, "conversations", conversationId), {
+        lastMessage: { content: content.trim(), createdAt: new Date().toISOString() },
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (e) {
+      console.error("Send message error:", e);
     }
   }, [userId]);
 
-  const createConversation = useCallback((participantIds: string[]) => {
+  const createConversation = useCallback(async (participantIds: string[]) => {
     if (!userId) return null;
     const allParticipants = Array.from(new Set([userId, ...participantIds]));
-    const convos = JSON.parse(localStorage.getItem("nawa_conversations") || "[]");
-    const existing = convos.find((c: Conversation) => c.participants.length === allParticipants.length && c.participants.every((p: string) => allParticipants.includes(p)));
-    if (existing) return existing.id;
-    const newConvo: Conversation = {
-      id: "convo_" + Date.now(), participants: allParticipants,
-      updatedAt: new Date().toISOString(), unreadCount: 0,
-    };
-    convos.push(newConvo);
-    localStorage.setItem("nawa_conversations", JSON.stringify(convos));
-    setConversations((prev) => [...prev, newConvo]);
-    return newConvo.id;
+    try {
+      const newConvo = await addDoc(collection(db, "conversations"), {
+        participants: allParticipants,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        unreadCount: 0,
+      });
+      return newConvo.id;
+    } catch (e) {
+      console.error("Create conversation error:", e);
+      return null;
+    }
   }, [userId]);
 
-  return { conversations, messages, sendMessage, createConversation };
+  return { conversations, messages, sendMessage, createConversation, listenToMessages };
 }

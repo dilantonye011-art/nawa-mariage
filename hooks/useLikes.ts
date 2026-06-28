@@ -22,7 +22,7 @@ export function useLikes(userId?: string) {
     return () => unsubscribe();
   }, [userId]);
 
-  const likeUser = useCallback(async (targetId: string) => {
+  const likeUser = useCallback(async (targetId: string): Promise<{ isMatch: boolean } | null> => {
     if (!userId || userId === targetId) return null;
     try {
       const myRef = doc(db, "likes", userId);
@@ -66,5 +66,10 @@ export function useLikes(userId?: string) {
     return likesData[userId].matches.includes(targetId);
   }, [userId, likesData]);
 
-  return { likeUser, hasLiked, isMatched };
+  const matches = useCallback((): string[] => {
+    if (!userId || !likesData[userId]) return [];
+    return likesData[userId].matches;
+  }, [userId, likesData]);
+
+  return { likeUser, hasLiked, isMatched, matches };
 }

@@ -182,7 +182,7 @@ export default function DiscoverPage() {
                     <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">{profile.bio}</p>
                   )}
                   <div className="flex gap-2">
-                    <button onClick={() => handleLike(profile.id)} disabled={hasLiked(profile.id)} 
+                      <button onClick={() => { handleLike(profile.id); }} disabled={hasLiked(profile.id)}
                       className={`flex-1 py-2 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1 ${
                         hasLiked(profile.id) 
                           ? "bg-red-100 dark:bg-red-900/30 text-red-600" 

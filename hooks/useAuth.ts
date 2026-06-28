@@ -26,6 +26,37 @@ function cleanupStorage() {
   }
 }
 
+// Fonction pour créer un compte admin par défaut
+export function createDefaultAdmin() {
+  if (typeof window === "undefined") return;
+  
+  const users = JSON.parse(localStorage.getItem("nawa_users") || "[]");
+  
+  // Vérifier si l'admin existe déjà
+  const adminExists = users.find((u: User) => u.email === "admin@nawa.com");
+  
+  if (!adminExists) {
+    const admin: User = {
+      id: "admin_default",
+      email: "admin@nawa.com",
+      name: "Admin Nawa",
+      age: 30,
+      gender: "male",
+      city: "Douala",
+      country: "Cameroun",
+      bio: "Administrateur du site",
+      photos: [],
+      verificationStatus: "verified",
+      isAdmin: true,  // ⭐ C'est ça qui donne les droits admin
+      createdAt: new Date().toISOString(),
+      lastActive: new Date().toISOString(),
+    };
+    users.push(admin);
+    localStorage.setItem("nawa_users", JSON.stringify(users));
+    console.log("Compte admin créé : admin@nawa.com / n'importe quel mot de passe");
+  }
+}
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +66,9 @@ export function useAuth() {
       setLoading(false);
       return;
     }
+
+createDefaultAdmin(); // ⭐ Ajoute cette ligne
+
     cleanupStorage();
     try {
       const stored = localStorage.getItem("nawa_current_user");

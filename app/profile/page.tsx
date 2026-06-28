@@ -37,17 +37,24 @@ export default function ProfilePage() {
     );
   }
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || user.photos.length >= 6) return;
-    setUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = () => { 
-      updateUser({ photos: [...user.photos, reader.result as string] }); 
-      setUploading(false); 
-    };
-    reader.readAsDataURL(file);
+ const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file || user.photos.length >= 6) return;
+  
+  // Limiter la taille à 500KB
+  if (file.size > 500 * 1024) {
+    alert("L'image est trop grande. Maximum 500KB.");
+    return;
+  }
+  
+  setUploading(true);
+  const reader = new FileReader();
+  reader.onloadend = () => { 
+    updateUser({ photos: [...user.photos, reader.result as string] }); 
+    setUploading(false); 
   };
+  reader.readAsDataURL(file);
+};
 
   const removePhoto = (index: number) => updateUser({ photos: user.photos.filter((_, i) => i !== index) });
   const requestVerification = () => { 

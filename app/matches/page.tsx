@@ -83,7 +83,7 @@ export default function MatchesPage() {
                     <MapPin className="w-3 h-3" />{profile.city}, {profile.age} ans
                   </p>
                 </div>
-                <Link href="/messages/" className="p-3 bg-primary-50 dark:bg-primary-900/20 text-primary-600 rounded-xl hover:bg-primary-100 transition">
+                <Link href={`/messages/${profile.id}`} className="p-3 bg-primary-50 dark:bg-primary-900/20 text-primary-600 rounded-xl hover:bg-primary-100 transition">
                   <MessageCircle className="w-5 h-5" />
                 </Link>
               </div>

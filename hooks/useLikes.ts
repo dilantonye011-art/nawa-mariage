@@ -66,6 +66,7 @@ export function useLikes(userId?: string) {
     return likesData[userId].matches.includes(targetId);
   }, [userId, likesData]);
 
+  // ⭐ AJOUTÉ : Retourner la liste des matchs
   const matches = useCallback((): string[] => {
     if (!userId || !likesData[userId]) return [];
     return likesData[userId].matches;

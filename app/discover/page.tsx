@@ -61,9 +61,9 @@ export default function DiscoverPage() {
     setFiltered(result);
   }, [filters, profiles]);
 
-  const handleLike = (profileId: string) => {
+ const handleLike = async (profileId: string) => {
     if (!user) return;
-    const result = likeUser(profileId);
+    const result = await likeUser(profileId);
     if (result?.isMatch) alert("C'est un match !");
   };
 

@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { VerificationBadge } from "@/components/VerificationBadge";
 
 export default function ProfilePage() {
-  const { user, updateUser, logout } = useAuth();
+  const { user, loading, updateUser, logout } = useAuth(); // ⭐ Ajout de loading
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -18,15 +18,15 @@ export default function ProfilePage() {
     setMounted(true);
   }, []);
 
-  // Redirection si non connecté (après le montage)
+  // ⭐ Redirection SEULEMENT après que le chargement soit terminé
   useEffect(() => {
-    if (mounted && !user) {
+    if (mounted && !loading && !user) {
       router.push("/login/");
     }
-  }, [mounted, user, router]);
+  }, [mounted, loading, user, router]);
 
-  // Pendant le chargement ou si non connecté, afficher un loader
-  if (!mounted || !user) {
+  // ⭐ Afficher un loader pendant le chargement de l'authentification
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
@@ -37,30 +37,36 @@ export default function ProfilePage() {
     );
   }
 
- const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file || user.photos.length >= 6) return;
-  
-  // Limiter la taille à 500KB
-  if (file.size > 500 * 1024) {
-    alert("L'image est trop grande. Maximum 500KB.");
-    return;
+  // ⭐ Si pas connecté après le chargement, ne rien afficher (la redirection gère ça)
+  if (!user) {
+    return null;
   }
-  
-  setUploading(true);
-  const reader = new FileReader();
-  reader.onloadend = () => { 
-    updateUser({ photos: [...user.photos, reader.result as string] }); 
-    setUploading(false); 
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || user.photos.length >= 6) return;
+    
+    if (file.size > 500 * 1024) {
+      alert("L'image est trop grande. Maximum 500KB.");
+      return;
+    }
+    
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onloadend = () => { 
+      updateUser({ photos: [...user.photos, reader.result as string] }); 
+      setUploading(false); 
+    };
+    reader.readAsDataURL(file);
   };
-  reader.readAsDataURL(file);
-};
 
   const removePhoto = (index: number) => updateUser({ photos: user.photos.filter((_, i) => i !== index) });
+  
   const requestVerification = () => { 
     updateUser({ verificationStatus: "pending" }); 
     setShowVerificationModal(false); 
   };
+  
   const handleLogout = () => { 
     logout(); 
     router.push("/"); 
@@ -161,13 +167,10 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm w-full">
             <h3 className="font-bold text-gray-900 dark:text-white mb-2">Demande de verification</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Notre equipe examinera votre profil. Cela peut prendre 24-48h.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Votre demande a ete envoyee a l'administrateur. Vous serez notifie une fois votre profil verifie.</p>
             <div className="flex gap-3">
               <button onClick={() => setShowVerificationModal(false)} className="flex-1 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium">
-                Annuler
-              </button>
-              <button onClick={requestVerification} className="flex-1 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition">
-                Confirmer
+                Fermer
               </button>
             </div>
           </div>

@@ -11,17 +11,29 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, sendVerificationEmail } = useAuth(); // ⭐ Ajout de sendVerificationEmail
   const router = useRouter();
 
   const updateField = (field: string, value: string) => { setFormData((prev) => ({ ...prev, [field]: value })); setError(""); };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setError(""); setLoading(true);
+    e.preventDefault(); 
+    setError(""); 
+    setLoading(true);
+    
     const success = await register({ ...formData, age: parseInt(formData.age) || 25 });
     setLoading(false);
-    if (success) router.push("/discover/");
-    else setError("Cet email est deja utilise");
+    
+    if (success) {
+      // ⭐ Optionnel : envoyer l'email de vérification
+      // Décommente les 2 lignes suivantes quand tu veux activer :
+      // await sendVerificationEmail();
+      // alert("Un email de vérification a été envoyé ! Vérifiez votre boîte Gmail.");
+      
+      router.push("/discover/");
+    } else {
+      setError("Cet email est deja utilise");
+    }
   };
 
   return (

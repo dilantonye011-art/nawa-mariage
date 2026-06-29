@@ -5,14 +5,12 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  setPersistence,
+  browserLocalPersistence,
+  sendEmailVerification
 } from "firebase/auth";
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc
-} from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import type { User } from "@/types";
 
@@ -20,24 +18,24 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // ⭐ Activer la persistance locale pour connexion instantanée
+  useEffect(() => {
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         const userDoc = await getDoc(doc(db, "users", fbUser.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
-          setUser({
-            ...userData,
-            id: fbUser.uid,
-            email: fbUser.email || userData.email,
-          });
+          setUser({ ...userData, id: fbUser.uid, email: fbUser.email || userData.email });
         }
       } else {
         setUser(null);
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -45,7 +43,6 @@ export function useAuth() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email!, data.password);
       const fbUser = userCredential.user;
-      
       const newUser: User = {
         id: fbUser.uid,
         email: data.email!,
@@ -61,10 +58,8 @@ export function useAuth() {
         createdAt: new Date().toISOString(),
         lastActive: new Date().toISOString(),
       };
-      
       await setDoc(doc(db, "users", fbUser.uid), newUser);
       await updateProfile(fbUser, { displayName: data.name });
-      
       setUser(newUser);
       return true;
     } catch (e: any) {
@@ -78,7 +73,6 @@ export function useAuth() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const fbUser = userCredential.user;
-      
       const userDoc = await getDoc(doc(db, "users", fbUser.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data() as User;
@@ -108,5 +102,20 @@ export function useAuth() {
     }
   }, [user]);
 
-  return { user, loading, login, register, logout, updateUser, isAuthenticated: !!user };
+  // ⭐ Envoyer l'email de vérification Firebase (gratuit jusqu'à 10k/mois)
+  const sendVerificationEmail = useCallback(async () => {
+    if (!auth.currentUser) return false;
+    try {
+      await sendEmailVerification(auth.currentUser, {
+        url: "https://nawa-mariage.vercel.app/verify-email",
+        handleCodeInApp: true,
+      });
+      return true;
+    } catch (e) {
+      console.error("Email verification error:", e);
+      return false;
+    }
+  }, []);
+
+  return { user, loading, login, register, logout, updateUser, sendVerificationEmail, isAuthenticated: !!user };
 }

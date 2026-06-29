@@ -102,7 +102,7 @@ export function useAuth() {
     }
   }, [user]);
 
-  // ⭐ Envoyer l'email de vérification Firebase (gratuit jusqu'à 10k/mois)
+  // ⭐ Envoyer l'email de vérification Firebase (AVANT le return !)
   const sendVerificationEmail = useCallback(async () => {
     if (!auth.currentUser) return false;
     try {
@@ -117,5 +117,6 @@ export function useAuth() {
     }
   }, []);
 
+  // ⭐ UN SEUL return à la fin
   return { user, loading, login, register, logout, updateUser, sendVerificationEmail, isAuthenticated: !!user };
 }

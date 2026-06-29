@@ -7,14 +7,26 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", age: "", gender: "male" as "male" | "female", city: "", country: "", bio: "" });
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    email: "", 
+    password: "", 
+    age: "", 
+    gender: "male" as "male" | "female", 
+    city: "", 
+    country: "", 
+    bio: "" 
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { register, sendVerificationEmail } = useAuth(); // ⭐ Ajout de sendVerificationEmail
+  const { register, sendVerificationEmail } = useAuth();
   const router = useRouter();
 
-  const updateField = (field: string, value: string) => { setFormData((prev) => ({ ...prev, [field]: value })); setError(""); };
+  const updateField = (field: string, value: string) => { 
+    setFormData((prev) => ({ ...prev, [field]: value })); 
+    setError(""); 
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); 
@@ -26,7 +38,6 @@ export default function RegisterPage() {
     
     if (success) {
       // ⭐ Optionnel : envoyer l'email de vérification
-      // Décommente les 2 lignes suivantes quand tu veux activer :
       // await sendVerificationEmail();
       // alert("Un email de vérification a été envoyé ! Vérifiez votre boîte Gmail.");
       
@@ -108,16 +119,4 @@ export default function RegisterPage() {
                 {error && <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-xl">{error}</div>}
                 <div className="flex gap-3">
                   <button type="button" onClick={() => setStep(1)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition">Retour</button>
-                  <button type="submit" disabled={loading} className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition disabled:opacity-50">{loading ? "Creation..." : "Creer mon compte"}</button>
-                </div>
-              </div>
-            )}
-          </form>
-          <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            Deja un compte ? <Link href="/login/" className="text-primary-600 hover:text-primary-700 font-medium">Se connecter</Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+                  <button type="submit" disabled={loading} className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition disabled:opacity-50">{

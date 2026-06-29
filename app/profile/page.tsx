@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { VerificationBadge } from "@/components/VerificationBadge";
 
 export default function ProfilePage() {
-  const { user, loading, updateUser, logout } = useAuth(); // ⭐ Ajout de loading
+  const { user, loading, updateUser, logout } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);

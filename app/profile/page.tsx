@@ -164,18 +164,32 @@ export default function ProfilePage() {
         </div>
       </div>
       {showVerificationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm w-full">
-            <h3 className="font-bold text-gray-900 dark:text-white mb-2">Demande de verification</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Votre demande a ete envoyee a l'administrateur. Vous serez notifie une fois votre profil verifie.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setShowVerificationModal(false)} className="flex-1 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium">
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full border border-gray-700 shadow-2xl">
+      <div className="w-16 h-16 bg-primary-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <Shield className="w-8 h-8 text-primary-500" />
+      </div>
+      <h3 className="font-bold text-white text-xl mb-2 text-center">Demande de vérification</h3>
+      <p className="text-gray-400 text-center mb-6">
+        Votre demande sera examinée par notre équipe. Cela peut prendre 24 à 48 heures.
+      </p>
+      <div className="flex gap-3">
+        <button 
+          onClick={() => setShowVerificationModal(false)} 
+          className="flex-1 py-3 bg-gray-800 text-gray-300 rounded-xl font-medium hover:bg-gray-700 transition"
+        >
+          Annuler
+        </button>
+        <button 
+          onClick={requestVerification}
+          className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-500 transition"
+        >
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Heart, MessageCircle, MapPin, X, Search, Moon, Sun, SlidersHorizontal } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,8 +15,11 @@ export default function DiscoverPage() {
   const { likeUser, hasLiked, isMatched } = useLikes(user?.id);
   const [profiles, setProfiles] = useState<User[]>([]);
   const [filtered, setFiltered] = useState<User[]>([]);
+    const router = useRouter();
   const [showFilters, setShowFilters] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [showMatch, setShowMatch] = useState(false);
+  const [matchedUser, setMatchedUser] = useState<User | null>(null);
   const [filters, setFilters] = useState({ 
     minAge: 18, maxAge: 60, 
     gender: "" as "" | "male" | "female", 
@@ -61,10 +65,15 @@ export default function DiscoverPage() {
     setFiltered(result);
   }, [filters, profiles]);
 
- const handleLike = async (profileId: string) => {
+  const handleLike = async (profileId: string) => {
     if (!user) return;
     const result = await likeUser(profileId);
-    if (result?.isMatch) alert("C'est un match !");
+    
+    if (result?.isMatch) {
+      const matchedProfile = profiles.find(p => p.id === profileId);
+      setMatchedUser(matchedProfile || null);
+      setShowMatch(true);
+    }
   };
 
   if (!user) return (
@@ -203,7 +212,39 @@ export default function DiscoverPage() {
             ))}
           </div>
         )}
-      </div>
+           </div>
+
+      {/* Match Modal */}
+      {showMatch && matchedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-gray-900 rounded-3xl p-8 max-w-sm w-full text-center border border-primary-500/30 shadow-2xl">
+            <div className="w-20 h-20 bg-primary-600/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+              <Heart className="w-10 h-10 text-primary-500" fill="currentColor" />
+            </div>
+            <h2 className="text-3xl font-bold mb-2">C'est un Match !</h2>
+            <p className="text-gray-400 mb-6">
+              Vous et {matchedUser.name} vous aimez mutuellement !
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowMatch(false)}
+                className="flex-1 py-3 bg-gray-800 rounded-xl font-medium hover:bg-gray-700 transition"
+              >
+                Continuer
+              </button>
+              <button
+                onClick={() => {
+                  setShowMatch(false);
+                  router.push("/messages/");
+                }}
+                className="flex-1 py-3 bg-primary-600 rounded-xl font-medium hover:bg-primary-500 transition"
+              >
+                Envoyer un message
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

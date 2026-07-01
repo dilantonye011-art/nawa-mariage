@@ -292,13 +292,6 @@ export default function DiscoverPage() {
               >
                 Envoyer un message
               </button>
-            // Ajouter dans l'affichage du profil, sous le score % match :
-{suggestions[index] && suggestions[index].reasons.some(r => r.includes("Compatibilité")) && (
-  <div className="mt-2 px-3 py-2 bg-primary-900/20 rounded-lg">
-    <p className="text-xs text-primary-400 font-medium">💞 Compatibilité avancée</p>
-    <p className="text-xs text-gray-400">Basée sur vos réponses au questionnaire</p>
-  </div>
-)}
 
             </div>
           </div>

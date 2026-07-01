@@ -2,11 +2,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Send, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Send, Video } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, updateDoc } from "firebase/firestore";
 import type { User } from "@/types";
+import { VideoCall } from "@/components/VideoCall";
 
 interface Message {
   id: string;
@@ -25,6 +26,7 @@ export default function ConversationPage() {
   const [otherUser, setOtherUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showVideoCall, setShowVideoCall] = useState(false);
 
   // Charger l'autre utilisateur
   useEffect(() => {
@@ -128,12 +130,19 @@ export default function ConversationPage() {
               <span className="text-lg font-bold">{otherUser?.name?.[0]}</span>
             )}
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="font-bold">{otherUser?.name || "Chargement..."}</h1>
             <p className="text-xs text-gray-400">
               {otherUser?.verificationStatus === "verified" ? "✓ Vérifié" : "En ligne"}
             </p>
           </div>
+          {/* Bouton Appel Vidéo */}
+          <button
+            onClick={() => setShowVideoCall(true)}
+            className="p-2 hover:bg-gray-800 rounded-lg transition"
+          >
+            <Video className="w-5 h-5 text-primary-500" />
+          </button>
         </div>
       </div>
 
@@ -191,6 +200,16 @@ export default function ConversationPage() {
           </button>
         </form>
       </div>
+
+      {/* Appel Vidéo */}
+      {showVideoCall && otherUser && (
+        <VideoCall
+          userId={user.id}
+          otherUserId={otherUser.id}
+          otherUserName={otherUser.name}
+          onClose={() => setShowVideoCall(false)}
+        />
+      )}
     </div>
   );
 }

@@ -8,6 +8,9 @@ import { useLikes } from "@/hooks/useLikes";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { useMatching } from "@/hooks/useMatching";
 import type { User } from "@/types";
+import { useNotifications } from "@/hooks/useNotifications";
+import { Bell, BellRing } from "lucide-react";
+
 
 export default function DiscoverPage() {
   const router = useRouter();
@@ -27,6 +30,8 @@ export default function DiscoverPage() {
     city: "", verifiedOnly: false, 
     sortBy: "recent" as "recent" | "age" 
   });
+  const { permission, requestPermission, unreadCount } = useNotifications(user?.id);
+
 
   // ⭐ CHARGER LES PROFILS VIA LE MATCHING INTELLIGENT
   useEffect(() => {
@@ -103,6 +108,23 @@ export default function DiscoverPage() {
             <Link href="/profile/" className="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
               <span className="text-xs font-bold text-primary-600">{user.name?.[0]}</span>
             </Link>
+
+            <button 
+  onClick={requestPermission}
+  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition relative"
+>
+  {permission === "granted" ? (
+    <BellRing className="w-5 h-5 text-primary-500" />
+  ) : (
+    <Bell className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+  )}
+  {unreadCount > 0 && (
+    <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+      {unreadCount}
+    </span>
+  )}
+</button>
+
           </div>
         </div>
       </div>

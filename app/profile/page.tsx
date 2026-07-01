@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Upload, X, Shield, LogOut, Heart, MessageCircle, MapPin, Calendar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { VerificationBadge } from "@/components/VerificationBadge";
+import { useNotifications } from "@/hooks/useNotifications";
+import { Bell, BellRing } from "lucide-react";
 
 export default function ProfilePage() {
   const { user, loading, updateUser, logout } = useAuth();
@@ -17,6 +19,9 @@ export default function ProfilePage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+const { permission, requestPermission, unreadCount } = useNotifications(user?.id);
+
 
   // ⭐ Redirection SEULEMENT après que le chargement soit terminé
   useEffect(() => {

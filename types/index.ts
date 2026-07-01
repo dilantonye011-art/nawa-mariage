@@ -47,3 +47,24 @@ export interface Toast {
   message: string;
   duration?: number;
 }
+
+// types/index.ts - Ajouter ces interfaces
+
+export interface Question {
+  id: string;
+  category: "values" | "lifestyle" | "religion" | "family" | "personality";
+  question: string;
+  options: string[];
+}
+
+export interface UserAnswers {
+  userId: string;
+  answers: Record<string, number>; // questionId -> index de la réponse
+  completedAt: string;
+}
+
+export interface CompatibilityResult {
+  overallScore: number; // 0-100
+  categoryScores: Record<string, number>;
+  details: string[];
+}

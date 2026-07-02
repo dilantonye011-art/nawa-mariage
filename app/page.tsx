@@ -4,6 +4,8 @@ import { Heart, Shield, MessageCircle, Sparkles, Users, Check, ArrowRight, Star,
 import { useEffect, useState } from "react";
 import { useLandingStats } from "@/hooks/useLandingStats";
 
+// BUILD ID: 20260702025617 - Force rebuild
+
 export default function LandingPage() {
   const { stats, loading } = useLandingStats();
   const [mounted, setMounted] = useState(false);

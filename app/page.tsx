@@ -63,7 +63,7 @@ export default function LandingPage() {
                 Trouvez l'<span className="text-primary-600">amour</span> pour le <span className="text-primary-600">mariage</span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Nawa Mariage connecte des célibataires musulmans sérieux prêts pour le mariage. Algorithme de compatibilité, vérification d'identité et messagerie sécurisée.
+                Nawa Mariage connecte des célibataires sérieux prêts pour le mariage. Algorithme de compatibilité, vérification d'identité et messagerie sécurisée.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/register/" className="px-8 py-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition shadow-xl shadow-primary-600/20 flex items-center gap-2">

@@ -1,24 +1,23 @@
 ﻿"use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Upload, X, Shield, LogOut, Heart, MessageCircle, MapPin, Calendar, ClipboardList, Check, ChevronRight } from "lucide-react";
+import { ArrowLeft, LogOut, Heart, MessageCircle, MapPin, Calendar, ClipboardList, Check, ChevronRight, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { VerificationBadge } from "@/components/VerificationBadge";
-import { useNotifications } from "@/hooks/useNotifications";
+import { PhotoGallery } from "@/components/PhotoGallery";
+import { Photo } from "@/hooks/useProfilePhotos";
 import { useCompatibility } from "@/hooks/useCompatibility";
 
 export default function ProfilePage() {
   const { user, loading, updateUser, logout } = useAuth();
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
-  const { permission, requestPermission, unreadCount } = useNotifications(user?.id);
   const { hasCompleted } = useCompatibility(user?.id);
 
   useEffect(() => {
@@ -37,18 +36,15 @@ export default function ProfilePage() {
   }
   if (!user) return null;
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || user.photos.length >= 6) return;
-    if (file.size > 500 * 1024) { alert("L'image est trop grande. Maximum 500KB."); return; }
-    setUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = () => { updateUser({ photos: [...user.photos, reader.result as string] }); setUploading(false); };
-    reader.readAsDataURL(file);
-  };
-  const removePhoto = (index: number) => updateUser({ photos: user.photos.filter((_, i) => i !== index) });
-  const requestVerification = () => { updateUser({ verificationStatus: "pending" }); setShowVerificationModal(false); };
   const handleLogout = () => { logout(); router.push("/"); };
+  const requestVerification = () => { updateUser({ verificationStatus: "pending" }); setShowVerificationModal(false); };
+  const refreshPhotos = () => setRefreshKey(k => k + 1);
+
+  const normalizedPhotos: Photo[] = user.photos?.map((p: any, i: number) => 
+    typeof p === "string" 
+      ? { url: p, deleteUrl: "", isMain: i === 0, uploadedAt: new Date().toISOString() }
+      : p
+  ) || [];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -61,39 +57,42 @@ export default function ProfilePage() {
           <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-500 transition"><LogOut className="w-5 h-5" /></button>
         </div>
       </div>
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
-          <h2 className="font-bold text-gray-900 dark:text-white mb-4">Photos ({user.photos.length}/6)</h2>
-          <div className="grid grid-cols-3 gap-3">
-            {user.photos.map((photo, i) => (
-              <div key={i} className="aspect-square rounded-xl overflow-hidden relative group">
-                <img src={photo} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
-                <button onClick={() => removePhoto(i)} className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-lg opacity-0 group-hover:opacity-100 transition"><X className="w-4 h-4" /></button>
-              </div>
-            ))}
-            {user.photos.length < 6 && (
-              <button onClick={() => fileInputRef.current?.click()} className="aspect-square rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center gap-2 hover:border-primary-400 transition">
-                <Upload className="w-6 h-6 text-gray-400" /><span className="text-xs text-gray-400">{uploading ? "..." : "Ajouter"}</span>
-              </button>
-            )}
-          </div>
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
-        </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        <PhotoGallery 
+          key={refreshKey}
+          userId={user.id} 
+          photos={normalizedPhotos} 
+          onPhotosChange={refreshPhotos} 
+        />
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-4">
             <h2 className="font-bold text-gray-900 dark:text-white">Informations</h2>
             <VerificationBadge status={user.verificationStatus} size="md" />
           </div>
           <div className="space-y-3">
-            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300"><Heart className="w-4 h-4 text-primary-500" /><span>{user.name}, {user.age} ans</span></div>
-            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300"><MapPin className="w-4 h-4 text-primary-500" /><span>{user.city}, {user.country}</span></div>
-            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300"><Calendar className="w-4 h-4 text-primary-500" /><span>Inscrit le {new Date(user.createdAt).toLocaleDateString("fr-FR")}</span></div>
-            {user.bio && <div className="pt-3 border-t border-gray-100 dark:border-gray-700"><p className="text-gray-600 dark:text-gray-300 text-sm">{user.bio}</p></div>}
+            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+              <Heart className="w-4 h-4 text-primary-500" />
+              <span>{user.name}, {user.age} ans</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+              <MapPin className="w-4 h-4 text-primary-500" />
+              <span>{user.city}, {user.country}</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+              <Calendar className="w-4 h-4 text-primary-500" />
+              <span>Inscrit le {new Date(user.createdAt).toLocaleDateString("fr-FR")}</span>
+            </div>
+            {user.bio && (
+              <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-300 text-sm">{user.bio}</p>
+              </div>
+            )}
           </div>
         </div>
 
-        <Link href="/questionnaire/" className={`flex items-center gap-3 p-4 rounded-xl border transition mb-6 ${hasCompleted ? "border-green-500/30 bg-green-500/10" : "border-gray-700 bg-gray-800 hover:bg-gray-700"}`}>
+        <Link href="/questionnaire/" className={`flex items-center gap-3 p-4 rounded-xl border transition ${hasCompleted ? "border-green-500/30 bg-green-500/10" : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${hasCompleted ? "bg-green-500/20" : "bg-primary-600/20"}`}>
             {hasCompleted ? <Check className="w-5 h-5 text-green-500" /> : <ClipboardList className="w-5 h-5 text-primary-500" />}
           </div>
@@ -104,40 +103,56 @@ export default function ProfilePage() {
           <ChevronRight className="w-5 h-5 text-gray-500" />
         </Link>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center"><Shield className="w-5 h-5 text-green-600" /></div>
+              <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                <Shield className="w-5 h-5 text-green-600" />
+              </div>
               <div>
-                <h3 className="font-bold text-gray-900 dark:text-white">Verification</h3>
-                <p className="text-sm text-gray-500">{user.verificationStatus === "verified" ? "Profil verifie" : user.verificationStatus === "pending" ? "En cours" : "Non verifie"}</p>
+                <h3 className="font-bold text-gray-900 dark:text-white">Vérification</h3>
+                <p className="text-sm text-gray-500">
+                  {user.verificationStatus === "verified" ? "Profil vérifié" : user.verificationStatus === "pending" ? "En cours d'examen" : "Non vérifié"}
+                </p>
               </div>
             </div>
             {user.verificationStatus === "none" && (
-              <button onClick={() => setShowVerificationModal(true)} className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition">Verifier</button>
+              <button onClick={() => setShowVerificationModal(true)} className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition">
+                Vérifier
+              </button>
             )}
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <Link href="/discover/" className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-3 hover:border-primary-300 transition">
-            <Heart className="w-5 h-5 text-primary-600" /><span className="font-medium text-gray-900 dark:text-white text-sm">Decouvrir</span>
+            <Heart className="w-5 h-5 text-primary-600" />
+            <span className="font-medium text-gray-900 dark:text-white text-sm">Découvrir</span>
           </Link>
           <Link href="/messages/" className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-3 hover:border-primary-300 transition">
-            <MessageCircle className="w-5 h-5 text-primary-600" /><span className="font-medium text-gray-900 dark:text-white text-sm">Messages</span>
+            <MessageCircle className="w-5 h-5 text-primary-600" />
+            <span className="font-medium text-gray-900 dark:text-white text-sm">Messages</span>
           </Link>
         </div>
       </div>
 
       {showVerificationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full border border-gray-700 shadow-2xl">
-            <div className="w-16 h-16 bg-primary-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4"><Shield className="w-8 h-8 text-primary-500" /></div>
-            <h3 className="font-bold text-white text-xl mb-2 text-center">Demande de vérification</h3>
-            <p className="text-gray-400 text-center mb-6">Votre demande sera examinée par notre équipe. Cela peut prendre 24 à 48 heures.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full border border-gray-200 dark:border-gray-700 shadow-2xl">
+            <div className="w-16 h-16 bg-primary-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Shield className="w-8 h-8 text-primary-500" />
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-2 text-center">Demande de vérification</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-center mb-6">
+              Votre demande sera examinée par notre équipe. Cela peut prendre 24 à 48 heures.
+            </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowVerificationModal(false)} className="flex-1 py-3 bg-gray-800 text-gray-300 rounded-xl font-medium hover:bg-gray-700 transition">Annuler</button>
-              <button onClick={requestVerification} className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-500 transition">Confirmer</button>
+              <button onClick={() => setShowVerificationModal(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                Annuler
+              </button>
+              <button onClick={requestVerification} className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
+                Confirmer
+              </button>
             </div>
           </div>
         </div>

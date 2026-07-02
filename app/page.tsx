@@ -4,8 +4,7 @@ import { Heart, Shield, MessageCircle, Sparkles, Users, Check, ArrowRight, Star,
 import { useEffect, useState } from "react";
 import { useLandingStats } from "@/hooks/useLandingStats";
 
-// CACHE_BUST: 20260702071712
- LandingPage() {
+export default function LandingPage() {
   const { stats, loading } = useLandingStats();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -260,4 +259,5 @@ import { useLandingStats } from "@/hooks/useLandingStats";
     </div>
   );
 }
+
 

@@ -4,12 +4,9 @@ import { Heart, Shield, MessageCircle, Sparkles, Users, Check, ArrowRight, Star,
 import { useEffect, useState } from "react";
 import { useLandingStats } from "@/hooks/useLandingStats";
 
-// BUILD ID: 20260702025617 - Force rebuild
-
 export default function LandingPage() {
   const { stats, loading } = useLandingStats();
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => { setMounted(true); }, []);
 
   const features = [
@@ -36,7 +33,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -52,7 +48,6 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-secondary-50 pt-20 pb-32">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-200 rounded-full blur-3xl opacity-30" />
@@ -127,7 +122,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* STATS - EN TEMPS RÉEL */}
       <section className="py-16 bg-gray-950">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-center gap-2 mb-8">
@@ -155,7 +149,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -175,7 +168,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
       <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -196,7 +188,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -220,7 +211,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-24 bg-gradient-to-br from-primary-600 to-secondary-600">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">Prêt à trouver votre âme sœur ?</h2>
@@ -233,7 +223,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="bg-gray-950 py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-12 mb-12">

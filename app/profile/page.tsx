@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, LogOut, Heart, MessageCircle, MapPin, Calendar, ClipboardList, Check, ChevronRight, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { VerificationBadge } from "@/components/VerificationBadge";
+import { VerificationModal } from "@/components/VerificationModal";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { Photo } from "@/hooks/useProfilePhotos";
 import { useCompatibility } from "@/hooks/useCompatibility";
@@ -37,7 +38,6 @@ export default function ProfilePage() {
   if (!user) return null;
 
   const handleLogout = () => { logout(); router.push("/"); };
-  const requestVerification = () => { updateUser({ verificationStatus: "pending" }); setShowVerificationModal(false); };
   const refreshPhotos = () => setRefreshKey(k => k + 1);
 
   const normalizedPhotos: Photo[] = user.photos?.map((p: any, i: number) => 
@@ -45,6 +45,19 @@ export default function ProfilePage() {
       ? { url: p, deleteUrl: "", isMain: i === 0, uploadedAt: new Date().toISOString() }
       : p
   ) || [];
+
+  const getVerificationAction = () => {
+    switch (user.verificationStatus) {
+      case "verified":
+        return { text: "Profil vérifié", disabled: true, color: "text-emerald-600" };
+      case "pending":
+        return { text: "En cours d'examen", disabled: true, color: "text-amber-600" };
+      default:
+        return { text: "Vérifier mon identité", disabled: false, color: "text-primary-600" };
+    }
+  };
+
+  const verificationAction = getVerificationAction();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -59,6 +72,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* GALERIE PHOTOS */}
         <PhotoGallery 
           key={refreshKey}
           userId={user.id} 
@@ -66,6 +80,7 @@ export default function ProfilePage() {
           onPhotosChange={refreshPhotos} 
         />
 
+        {/* INFORMATIONS */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-4">
             <h2 className="font-bold text-gray-900 dark:text-white">Informations</h2>
@@ -92,6 +107,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* QUESTIONNAIRE */}
         <Link href="/questionnaire/" className={`flex items-center gap-3 p-4 rounded-xl border transition ${hasCompleted ? "border-green-500/30 bg-green-500/10" : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${hasCompleted ? "bg-green-500/20" : "bg-primary-600/20"}`}>
             {hasCompleted ? <Check className="w-5 h-5 text-green-500" /> : <ClipboardList className="w-5 h-5 text-primary-500" />}
@@ -103,27 +119,51 @@ export default function ProfilePage() {
           <ChevronRight className="w-5 h-5 text-gray-500" />
         </Link>
 
+        {/* VÉRIFICATION D'IDENTITÉ */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-green-600" />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                user.verificationStatus === "verified" ? "bg-emerald-100 dark:bg-emerald-900/30" :
+                user.verificationStatus === "pending" ? "bg-amber-100 dark:bg-amber-900/30" :
+                "bg-gray-100 dark:bg-gray-700"
+              }`}>
+                <Shield className={`w-5 h-5 ${
+                  user.verificationStatus === "verified" ? "text-emerald-600" :
+                  user.verificationStatus === "pending" ? "text-amber-600" :
+                  "text-gray-500"
+                }`} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 dark:text-white">Vérification</h3>
-                <p className="text-sm text-gray-500">
-                  {user.verificationStatus === "verified" ? "Profil vérifié" : user.verificationStatus === "pending" ? "En cours d'examen" : "Non vérifié"}
+                <h3 className="font-bold text-gray-900 dark:text-white">Vérification d'identité</h3>
+                <p className={`text-sm ${verificationAction.color}`}>
+                  {user.verificationStatus === "verified" ? "Votre identité est vérifiée" :
+                   user.verificationStatus === "pending" ? "Votre demande est en cours d'examen (24-48h)" :
+                   "Vérifiez votre identité pour plus de confiance"}
                 </p>
               </div>
             </div>
-            {user.verificationStatus === "none" && (
-              <button onClick={() => setShowVerificationModal(true)} className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition">
-                Vérifier
+            {!verificationAction.disabled && (
+              <button 
+                onClick={() => setShowVerificationModal(true)} 
+                className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition"
+              >
+                {verificationAction.text}
               </button>
             )}
           </div>
+          
+          {user.verificationStatus === "verified" && (
+            <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
+              <p className="text-xs text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+                <Check className="w-4 h-4" />
+                Votre badge vérifié est visible sur votre profil et vos matchs.
+              </p>
+            </div>
+          )}
         </div>
 
+        {/* NAVIGATION */}
         <div className="grid grid-cols-2 gap-4">
           <Link href="/discover/" className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-3 hover:border-primary-300 transition">
             <Heart className="w-5 h-5 text-primary-600" />
@@ -136,27 +176,13 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {showVerificationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full border border-gray-200 dark:border-gray-700 shadow-2xl">
-            <div className="w-16 h-16 bg-primary-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-8 h-8 text-primary-500" />
-            </div>
-            <h3 className="font-bold text-gray-900 dark:text-white text-xl mb-2 text-center">Demande de vérification</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-center mb-6">
-              Votre demande sera examinée par notre équipe. Cela peut prendre 24 à 48 heures.
-            </p>
-            <div className="flex gap-3">
-              <button onClick={() => setShowVerificationModal(false)} className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                Annuler
-              </button>
-              <button onClick={requestVerification} className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition">
-                Confirmer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODAL VÉRIFICATION */}
+      <VerificationModal
+        userId={user.id}
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        currentStatus={user.verificationStatus}
+      />
     </div>
   );
 }

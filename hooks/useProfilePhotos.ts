@@ -21,29 +21,45 @@ export function useProfilePhotos(userId: string | undefined) {
 
   const validateFile = (file: File): string | null => {
     if (!file.type.startsWith("image/")) return "Le fichier doit être une image (JPG, PNG, WebP, GIF).";
-    if (file.size > 10 * 1024 * 1024) return "L'image est trop grande. Maximum 10 Mo.";
+    if (file.size > 20 * 1024 * 1024) return "L'image est trop grande. Maximum 20 Mo.";
     return null;
   };
 
-  const compressImage = async (file: File, maxWidth = 800, quality = 0.7): Promise<Blob> => {
+  const compressImage = async (file: File, maxWidth = 600, quality = 0.6): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.src = URL.createObjectURL(file);
+      
       img.onload = () => {
+        // Calculer les dimensions finales en respectant le ratio
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
         const canvas = document.createElement("canvas");
-        const scale = Math.min(1, maxWidth / img.width);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+        canvas.width = width;
+        canvas.height = height;
+        
         const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        
         canvas.toBlob((blob) => {
           if (blob) {
-            console.log("Compression: avant", (file.size / 1024 / 1024).toFixed(2), "MB -> après", (blob.size / 1024 / 1024).toFixed(2), "MB");
+            console.log(`Compression: ${(file.size / 1024).toFixed(1)}KB -> ${(blob.size / 1024).toFixed(1)}KB`);
             resolve(blob);
-          } else reject(new Error("Compression échouée"));
+          } else {
+            reject(new Error("Compression échouée"));
+          }
         }, "image/jpeg", quality);
       };
-      img.onerror = reject;
+      
+      img.onerror = () => reject(new Error("Impossible de charger l'image"));
     });
   };
 
@@ -61,7 +77,7 @@ export function useProfilePhotos(userId: string | undefined) {
 
   const uploadPhoto = useCallback(async (file: File, isMain = false): Promise<Photo | null> => {
     if (!userId) {
-      toastError("Vous devez être connecté pour uploader une photo.");
+      toastError("Vous devez être connecté.");
       return null;
     }
     
@@ -73,42 +89,57 @@ export function useProfilePhotos(userId: string | undefined) {
     }
 
     setUploading(true);
-    setProgress(10);
+    setProgress(5);
     setError(null);
 
     try {
       const userDoc = await getDoc(doc(db, "users", userId));
       const currentPhotos = userDoc.data()?.photos || [];
       if (currentPhotos.length >= 6) {
-        setError("Maximum 6 photos atteint.");
         toastError("Maximum 6 photos atteint.");
         setUploading(false);
         return null;
       }
 
-      setProgress(30);
-      const compressed = await compressImage(file);
+      setProgress(20);
       
-      // Vérifier que la taille compressée est raisonnable
-      if (compressed.size > 5 * 1024 * 1024) {
-        toastError("L'image reste trop grande après compression. Essayez une image plus petite.");
+      // Essayer compression normale d'abord
+      let compressed: Blob;
+      try {
+        compressed = await compressImage(file, 600, 0.6);
+      } catch {
+        // Si échec, essayer compression plus agressive
+        compressed = await compressImage(file, 400, 0.5);
+      }
+
+      // Si toujours trop gros, erreur
+      if (compressed.size > 2 * 1024 * 1024) {
+        toastError("L'image est trop grande même après compression. Essayez une image plus petite (max 2-3 Mo).");
         setUploading(false);
         return null;
       }
 
-      setProgress(50);
+      setProgress(40);
       const base64 = await fileToBase64(compressed);
 
-      setProgress(70);
+      setProgress(60);
       const formData = new FormData();
       formData.append("key", IMGBB_API_KEY);
       formData.append("image", base64);
       formData.append("name", `user_${userId}_${Date.now()}`);
 
+      setProgress(80);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
       const response = await fetch("https://api.imgbb.com/1/upload", {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       const result = await response.json();
 
@@ -116,7 +147,7 @@ export function useProfilePhotos(userId: string | undefined) {
         throw new Error(result.error?.message || "Upload échoué");
       }
 
-      setProgress(90);
+      setProgress(95);
 
       const photo: Photo = {
         url: result.data.url,
@@ -140,8 +171,11 @@ export function useProfilePhotos(userId: string | undefined) {
 
     } catch (err: any) {
       console.error("Upload error:", err);
-      toastError(err.message || "Erreur lors de l'upload. Vérifiez votre connexion.");
-      setError(err.message || "Erreur lors de l'upload.");
+      if (err.name === "AbortError") {
+        toastError("L'upload a pris trop de temps. Vérifiez votre connexion.");
+      } else {
+        toastError(err.message || "Erreur lors de l'upload.");
+      }
       setUploading(false);
       setProgress(0);
       return null;
@@ -150,7 +184,6 @@ export function useProfilePhotos(userId: string | undefined) {
 
   const deletePhoto = useCallback(async (photo: Photo, allPhotos: Photo[]): Promise<boolean> => {
     if (!userId) return false;
-    setError(null);
 
     try {
       if (photo.deleteUrl) {
@@ -172,7 +205,6 @@ export function useProfilePhotos(userId: string | undefined) {
       return true;
     } catch (err) {
       toastError("Erreur lors de la suppression.");
-      setError("Erreur lors de la suppression.");
       return false;
     }
   }, [userId]);
@@ -189,7 +221,6 @@ export function useProfilePhotos(userId: string | undefined) {
       return true;
     } catch (err) {
       toastError("Erreur lors du changement de photo principale.");
-      setError("Erreur lors du changement de photo principale.");
       return false;
     }
   }, [userId]);

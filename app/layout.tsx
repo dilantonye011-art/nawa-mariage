@@ -1,11 +1,11 @@
 ﻿import type { Metadata, Viewport } from "next";
+import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
-import { ToastContainer } from "@/components/ToastContainer"
-import { ToastProvider } from "@/components/ToastProvider";;
+;
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister"
-import { ToastProvider } from "@/components/ToastProvider";;
+;
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt"
-import { ToastProvider } from "@/components/ToastProvider";;
+;
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -31,14 +31,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" suppressHydrationWarning>
       <head><link rel="apple-touch-icon" href="/icon-192x192.png" /></head>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
-        <ToastProvider>
-        {children}
+        <ToastProvider>{children}
         <ToastContainer />
         <ServiceWorkerRegister />
-        <PWAInstallPrompt />
-              </ToastProvider>
+        <PWAInstallPrompt />        </ToastProvider>
 </body>
     </html>
   );
 }
+
 

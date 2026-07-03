@@ -21,17 +21,16 @@ export function useProfilePhotos(userId: string | undefined) {
 
   const validateFile = (file: File): string | null => {
     if (!file.type.startsWith("image/")) return "Le fichier doit être une image (JPG, PNG, WebP, GIF).";
-    if (file.size > 20 * 1024 * 1024) return "L'image est trop grande. Maximum 20 Mo.";
+    if (file.size > 10 * 1024 * 1024) return "L'image est trop grande. Maximum 10 Mo.";
     return null;
   };
 
-  const compressImage = async (file: File, maxWidth = 600, quality = 0.6): Promise<Blob> => {
+  const compressImage = async (file: File, maxWidth = 800, quality = 0.7): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.src = URL.createObjectURL(file);
       
       img.onload = () => {
-        // Calculer les dimensions finales en respectant le ratio
         let width = img.width;
         let height = img.height;
         
@@ -81,6 +80,12 @@ export function useProfilePhotos(userId: string | undefined) {
       return null;
     }
     
+    if (!IMGBB_API_KEY || IMGBB_API_KEY.length < 10) {
+      toastError("Clé API ImgBB non configurée. Contactez l'administrateur.");
+      console.error("IMGBB_API_KEY manquante ou invalide");
+      return null;
+    }
+    
     const validationError = validateFile(file);
     if (validationError) {
       setError(validationError);
@@ -102,19 +107,10 @@ export function useProfilePhotos(userId: string | undefined) {
       }
 
       setProgress(20);
+      const compressed = await compressImage(file);
       
-      // Essayer compression normale d'abord
-      let compressed: Blob;
-      try {
-        compressed = await compressImage(file, 600, 0.6);
-      } catch {
-        // Si échec, essayer compression plus agressive
-        compressed = await compressImage(file, 400, 0.5);
-      }
-
-      // Si toujours trop gros, erreur
-      if (compressed.size > 2 * 1024 * 1024) {
-        toastError("L'image est trop grande même après compression. Essayez une image plus petite (max 2-3 Mo).");
+      if (compressed.size > 3 * 1024 * 1024) {
+        toastError("L'image est trop grande après compression. Essayez une image plus petite.");
         setUploading(false);
         return null;
       }
@@ -131,7 +127,7 @@ export function useProfilePhotos(userId: string | undefined) {
       setProgress(80);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       const response = await fetch("https://api.imgbb.com/1/upload", {
         method: "POST",
@@ -144,7 +140,11 @@ export function useProfilePhotos(userId: string | undefined) {
       const result = await response.json();
 
       if (!result.success) {
-        throw new Error(result.error?.message || "Upload échoué");
+        const errorMsg = result.error?.message || "Upload échoué";
+        if (errorMsg.includes("Invalid API") || errorMsg.includes("key")) {
+          throw new Error("Clé API ImgBB invalide. Régénérez-la sur imgbb.com");
+        }
+        throw new Error(errorMsg);
       }
 
       setProgress(95);
@@ -172,7 +172,7 @@ export function useProfilePhotos(userId: string | undefined) {
     } catch (err: any) {
       console.error("Upload error:", err);
       if (err.name === "AbortError") {
-        toastError("L'upload a pris trop de temps. Vérifiez votre connexion.");
+        toastError("L'upload a pris trop de temps.");
       } else {
         toastError(err.message || "Erreur lors de l'upload.");
       }

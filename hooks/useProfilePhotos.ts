@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState, useCallback } from "react";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase"
+import { useToastContext } from "@/components/ToastProvider";;
 import { doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
 
 const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || "";
@@ -13,6 +14,7 @@ export interface Photo {
 }
 
 export function useProfilePhotos(userId: string | undefined) {
+  const { success, error } = useToastContext();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -114,10 +116,12 @@ export function useProfilePhotos(userId: string | undefined) {
       await updateDoc(doc(db, "users", userId), updates);
       setProgress(100);
       setUploading(false);
+      success("Photo ajoutée avec succès !");
       setProgress(0);
       return photo;
 
     } catch (err: any) {
+      error(err.message || "Erreur lors de l'upload.");
       setError(err.message || "Erreur lors de l'upload.");
       setUploading(false);
       setProgress(0);
@@ -145,8 +149,11 @@ export function useProfilePhotos(userId: string | undefined) {
         await updateDoc(doc(db, "users", userId), { photos: updatedPhotos });
       }
 
+            success("Photo supprimée.");
+
       return true;
     } catch (err) {
+      error("Erreur lors de la suppression.");
       setError("Erreur lors de la suppression.");
       return false;
     }
@@ -161,6 +168,8 @@ export function useProfilePhotos(userId: string | undefined) {
         isMain: p.url === photoUrl,
       }));
       await updateDoc(doc(db, "users", userId), { photos: updatedPhotos });
+            success("Photo supprimée.");
+
       return true;
     } catch (err) {
       setError("Erreur lors du changement de photo principale.");
@@ -170,3 +179,4 @@ export function useProfilePhotos(userId: string | undefined) {
 
   return { uploadPhoto, deletePhoto, setMainPhoto, uploading, progress, error, setError };
 }
+

@@ -2,7 +2,8 @@
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { X, Star, Upload, Loader2, AlertCircle } from "lucide-react";
-import { Photo, useProfilePhotos } from "@/hooks/useProfilePhotos";
+import { Photo, useProfilePhotos } from "@/hooks/useProfilePhotos"
+import { useToastContext } from "@/components/ToastProvider";;
 import { motion, AnimatePresence } from "framer-motion";
 
 interface PhotoGalleryProps {
@@ -12,6 +13,7 @@ interface PhotoGalleryProps {
 }
 
 export function PhotoGallery({ userId, photos, onPhotosChange }: PhotoGalleryProps) {
+  const { info } = useToastContext();
   const { uploadPhoto, deletePhoto, setMainPhoto, uploading, progress, error, setError } = useProfilePhotos(userId);
   const [dragOver, setDragOver] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -48,6 +50,7 @@ export function PhotoGallery({ userId, photos, onPhotosChange }: PhotoGalleryPro
   const handleSetMain = async (photo: Photo) => {
     if (photo.isMain) return;
     await setMainPhoto(photo.url, photos);
+    info("Photo principale mise à jour");
     onPhotosChange();
   };
 
@@ -168,3 +171,4 @@ export function PhotoGallery({ userId, photos, onPhotosChange }: PhotoGalleryPro
     </div>
   );
 }
+

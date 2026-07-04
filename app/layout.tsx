@@ -32,7 +32,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" suppressHydrationWarning>
+  <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+  </head>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
+      <script dangerouslySetInnerHTML={{ __html: `
+        (function() {
+          var originalError = window.onerror;
+          window.onerror = function(msg, url, line, col, error) {
+            if (msg && (msg.toString().includes('ChunkLoadError') || msg.toString().includes('Loading chunk') || msg.toString().includes('404'))) {
+              console.log('Chunk manquant, reload forcé...');
+              window.location.reload(true);
+              return true;
+            }
+            if (originalError) return originalError(msg, url, line, col, error);
+          };
+        })();
+      `}} />
         <ToastProvider>
           {children}
           <ServiceWorkerRegister />
@@ -42,3 +60,4 @@ export default function RootLayout({
     </html>
   );
 }
+

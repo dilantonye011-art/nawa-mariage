@@ -4,7 +4,25 @@ import { Heart, Shield, MessageCircle, Sparkles, Users, Check, ArrowRight, Star,
 import { useEffect, useState } from "react";
 import { useLandingStats } from "@/hooks/useLandingStats";
 
+import { useEffect } from "react";
+
+import { useEffect } from "react";
+
 export default function LandingPage() {
+  useEffect(() => {
+    // Forcer le cache bust si pas de paramètre
+    if (!window.location.search.includes("v=")) {
+      window.location.href = window.location.pathname + "?v=" + Date.now();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Forcer le cache bust si pas de paramètre
+    if (!window.location.search.includes("v=")) {
+      window.location.href = window.location.pathname + "?v=" + Date.now();
+    }
+  }, []);
+
   const { stats, loading } = useLandingStats();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -259,5 +277,6 @@ export default function LandingPage() {
     </div>
   );
 }
+
 
 

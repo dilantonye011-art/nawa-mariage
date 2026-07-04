@@ -1,6 +1,6 @@
 ﻿import type { Metadata, Viewport } from "next";
-import "./globals.css";
 import { ToastProvider } from "@/components/ToastProvider";
+import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
@@ -38,6 +38,7 @@ export default function RootLayout({
     <meta http-equiv="Expires" content="0" />
   </head>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
+        <ToastProvider>
       <script dangerouslySetInnerHTML={{ __html: `
         (function() {
           var originalError = window.onerror;
@@ -50,14 +51,12 @@ export default function RootLayout({
             if (originalError) return originalError(msg, url, line, col, error);
           };
         })();
-      `}} />
-        <ToastProvider>
-          {children}
+      `}} />{children}
           <ServiceWorkerRegister />
-          <PWAInstallPrompt />
-        </ToastProvider>
-      </body>
+          <PWAInstallPrompt />        </ToastProvider>
+</body>
     </html>
   );
 }
+
 

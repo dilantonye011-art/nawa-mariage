@@ -1,176 +1,240 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Heart, MessageCircle, MapPin, X, Search, Moon, Sun, SlidersHorizontal, Bell, BellRing, Sparkles, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Heart, X, MapPin, Star, SlidersHorizontal, Loader2, ShieldCheck } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { useLikes } from "@/hooks/useLikes";
+import { useDiscover } from "@/hooks/useDiscover";
+import { useSearchFilters } from "@/hooks/useSearchFilters";
+import { SearchFilters } from "@/components/SearchFilters";
 import { VerificationBadge } from "@/components/VerificationBadge";
-import { useMatching } from "@/hooks/useMatching";
-import { useCompatibility } from "@/hooks/useCompatibility";
-import type { User } from "@/types";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useToastContext } from "@/components/ToastProvider";
 
 export default function DiscoverPage() {
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
-  const { likeUser, hasLiked, isMatched } = useLikes(user?.id);
-  const { suggestions, loading: matchingLoading } = useMatching(user?.id);
-  const { hasCompleted } = useCompatibility(user?.id);
-  const [profiles, setProfiles] = useState<User[]>([]);
-  const [filtered, setFiltered] = useState<User[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const [showMatch, setShowMatch] = useState(false);
-  const [matchedUser, setMatchedUser] = useState<User | null>(null);
-  const [filters, setFilters] = useState({ minAge: 18, maxAge: 60, gender: "" as "" | "male" | "female", city: "", verifiedOnly: false, sortBy: "recent" as "recent" | "age" });
-  const { permission, requestPermission, unreadCount } = useNotifications(user?.id);
+  const { success, error: toastError } = useToastContext();
+  const [mounted, setMounted] = useState(false);
+  
+  const { filters, updateFilter, resetFilters, isOpen, togglePanel } = useSearchFilters();
+  const { profiles, loading, error, refetch } = useDiscover(user?.id, filters);
+  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+  const [likedProfiles, setLikedProfiles] = useState<Set<string>>(new Set());
 
-  useEffect(() => { if (!suggestions.length) return; const users = suggestions.map(s => s.user); setProfiles(users); setFiltered(users); }, [suggestions]);
-  useEffect(() => { if (typeof window === "undefined") return; const saved = localStorage.getItem("nawa_dark_mode"); if (saved) setDarkMode(saved === "true"); }, []);
-  useEffect(() => { if (darkMode) document.documentElement.classList.add("dark"); else document.documentElement.classList.remove("dark"); localStorage.setItem("nawa_dark_mode", String(darkMode)); }, [darkMode]);
-  useEffect(() => { let result = [...profiles]; if (filters.gender) result = result.filter((p) => p.gender === filters.gender); if (filters.city) result = result.filter((p) => p.city.toLowerCase().includes(filters.city.toLowerCase())); result = result.filter((p) => p.age >= filters.minAge && p.age <= filters.maxAge); if (filters.verifiedOnly) result = result.filter((p) => p.verificationStatus === "verified"); if (filters.sortBy === "age") result.sort((a, b) => a.age - b.age); else result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); setFiltered(result); }, [filters, profiles]);
+  useEffect(() => { setMounted(true); }, []);
 
-  const handleLike = async (profileId: string) => {
-    if (!user) return;
-    const result = await likeUser(profileId);
-    if (result?.isMatch) { const matchedProfile = profiles.find(p => p.id === profileId); setMatchedUser(matchedProfile || null); setShowMatch(true); }
+  useEffect(() => {
+    if (mounted && !authLoading && !user) router.push("/login/");
+  }, [mounted, authLoading, user, router]);
+
+  // Réinitialiser l'index quand les filtres changent
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [filters]);
+
+  if (!mounted || authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+  if (!user) return null;
+
+  const currentProfile = profiles[currentIndex];
+  const hasMore = currentIndex < profiles.length - 1;
+
+  const handleLike = () => {
+    if (!currentProfile) return;
+    setDirection(1);
+    setLikedProfiles((prev) => new Set(prev).add(currentProfile.id));
+    success(`Vous avez aimé ${currentProfile.name} !`);
+    setTimeout(() => {
+      if (hasMore) setCurrentIndex((prev) => prev + 1);
+    }, 300);
   };
 
-  if (!user) return (<div className="min-h-screen flex items-center justify-center"><Link href="/login/" className="px-6 py-3 bg-primary-600 text-white rounded-xl">Se connecter</Link></div>);
-  if (loading || matchingLoading) return (<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950"><div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div></div>);
+  const handlePass = () => {
+    setDirection(-1);
+    setTimeout(() => {
+      if (hasMore) setCurrentIndex((prev) => prev + 1);
+    }, 300);
+  };
+
+  const handleSuperLike = () => {
+    if (!currentProfile) return;
+    setDirection(1);
+    success(`Super Like envoyé à ${currentProfile.name} ! ⭐`);
+    setTimeout(() => {
+      if (hasMore) setCurrentIndex((prev) => prev + 1);
+    }, 300);
+  };
+
+  const handleRefresh = () => {
+    setCurrentIndex(0);
+    refetch();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="font-bold text-gray-900 dark:text-white">Découvrir</h1>
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30">
+        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+          <Link href="/profile/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs font-bold">{user.name?.[0]}</span>
+            </div>
+          </Link>
+          <h1 className="font-bold text-lg text-gray-900 dark:text-white">Découvrir</h1>
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowFilters(!showFilters)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"><SlidersHorizontal className="w-5 h-5 text-gray-600 dark:text-gray-300" /></button>
-            <button onClick={() => setDarkMode(!darkMode)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">{darkMode ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-gray-600" />}</button>
-            <Link href="/profile/" className="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center"><span className="text-xs font-bold text-primary-600">{user.name?.[0]}</span></Link>
-            <button onClick={requestPermission} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition relative">{permission === "granted" ? <BellRing className="w-5 h-5 text-primary-500" /> : <Bell className="w-5 h-5 text-gray-600 dark:text-gray-300" />}{unreadCount > 0 && <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{unreadCount}</span>}</button>
+            <SearchFilters
+              filters={filters}
+              updateFilter={updateFilter}
+              resetFilters={resetFilters}
+              isOpen={isOpen}
+              togglePanel={togglePanel}
+            />
           </div>
         </div>
       </div>
 
-      {!hasCompleted && (
-        <div className="max-w-2xl mx-auto px-4 pt-4">
-          <Link href="/questionnaire/" className="flex items-center gap-3 p-4 bg-primary-600/10 border border-primary-500/20 rounded-xl hover:bg-primary-600/20 transition">
-            <Sparkles className="w-6 h-6 text-primary-500 flex-shrink-0" />
-            <div className="flex-1 min-w-0"><p className="font-medium text-primary-400 text-sm">Améliorez vos matchs</p><p className="text-xs text-gray-400">Répondez au questionnaire de compatibilité pour des suggestions plus précises</p></div>
-            <ChevronRight className="w-5 h-5 text-primary-500 flex-shrink-0" />
-          </Link>
-        </div>
-      )}
-
-      {showFilters && (
-        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <div className="flex items-center justify-between"><h3 className="font-medium text-gray-900 dark:text-white">Filtres</h3><button onClick={() => setShowFilters(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><X className="w-4 h-4 text-gray-500" /></button></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><label className="text-xs text-gray-500 mb-1 block">Âge min</label><input type="number" min={18} max={100} value={filters.minAge} onChange={(e) => setFilters((f) => ({ ...f, minAge: parseInt(e.target.value) || 18 }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm" /></div>
-              <div><label className="text-xs text-gray-500 mb-1 block">Âge max</label><input type="number" min={18} max={100} value={filters.maxAge} onChange={(e) => setFilters((f) => ({ ...f, maxAge: parseInt(e.target.value) || 60 }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm" /></div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><label className="text-xs text-gray-500 mb-1 block">Genre</label><select value={filters.gender} onChange={(e) => setFilters((f) => ({ ...f, gender: e.target.value as any }))} className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm"><option value="">Tous</option><option value="male">Homme</option><option value="female">Femme</option></select></div>
-              <div><label className="text-xs text-gray-500 mb-1 block">Ville</label><input type="text" value={filters.city} onChange={(e) => setFilters((f) => ({ ...f, city: e.target.value }))} placeholder="Rechercher..." className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm" /></div>
-            </div>
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={filters.verifiedOnly} onChange={(e) => setFilters((f) => ({ ...f, verifiedOnly: e.target.checked }))} className="rounded border-gray-300" />Profils vérifiés uniquement</label>
-              <select value={filters.sortBy} onChange={(e) => setFilters((f) => ({ ...f, sortBy: e.target.value as any }))} className="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm"><option value="recent">Plus récents</option><option value="age">Âge</option></select>
-            </div>
+      {/* Content */}
+      <div className="max-w-lg mx-auto px-4 py-6">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-10 h-10 text-primary-600 animate-spin mb-4" />
+            <p className="text-gray-500">Recherche de profils...</p>
           </div>
-        </div>
-      )}
-
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        {filtered.length === 0 ? (
+        ) : error ? (
           <div className="text-center py-20">
-            <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">Aucun profil trouvé</p>
-            <p className="text-sm text-gray-400 mt-1">Revenez plus tard !</p>
+            <p className="text-red-500 mb-4">{error}</p>
+            <button onClick={handleRefresh} className="px-6 py-3 bg-primary-600 text-white rounded-xl">
+              Réessayer
+            </button>
+          </div>
+        ) : profiles.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <SlidersHorizontal className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Aucun profil trouvé</h3>
+            <p className="text-gray-500 mb-6">Essayez de modifier vos filtres de recherche</p>
+            <button onClick={resetFilters} className="px-6 py-3 bg-primary-600 text-white rounded-xl font-medium">
+              Réinitialiser les filtres
+            </button>
+          </div>
+        ) : !currentProfile ? (
+          <div className="text-center py-20">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Plus de profils !</h3>
+            <p className="text-gray-500 mb-6">Vous avez vu tous les profils correspondant à vos critères</p>
+            <button onClick={handleRefresh} className="px-6 py-3 bg-primary-600 text-white rounded-xl font-medium">
+              Recommencer
+            </button>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
-            {filtered.map((profile, index) => (
-              <div key={profile.id} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm">
-                <div className="aspect-[4/5] bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 relative">
-                  {profile.photos?.[0] ? (
-                    <img src={profile.photos[0]} alt={profile.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-4xl font-serif text-gray-300">{profile.name?.[0]}</span>
-                    </div>
-                  )}
-                  <div className="absolute top-3 right-3">
-                    <VerificationBadge status={profile.verificationStatus} size="md" />
-                  </div>
-                  {suggestions[index] && (
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-primary-600/80 backdrop-blur text-white text-xs rounded-full font-bold">
-                      {suggestions[index].score}% match
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-gray-900 dark:text-white">{profile.name}, {profile.age}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mb-2">
-                    <MapPin className="w-3 h-3" />{profile.city}, {profile.country}
-                  </p>
-                  {suggestions[index] && suggestions[index].reasons.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {suggestions[index].reasons.slice(0, 3).map((reason, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-xs rounded-full">
-                          {reason}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {suggestions[index] && suggestions[index].reasons.some(r => r.includes("Compatibilité")) && (
-                    <div className="mt-2 px-3 py-2 bg-primary-900/20 rounded-lg mb-2">
-                      <p className="text-xs text-primary-400 font-medium">💞 Compatibilité avancée</p>
-                      <p className="text-xs text-gray-400">Basée sur vos réponses au questionnaire</p>
-                    </div>
-                  )}
-                  {profile.bio && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">{profile.bio}</p>
-                  )}
-                  <div className="flex gap-2">
-                    <button onClick={() => handleLike(profile.id)} disabled={hasLiked(profile.id)}
-                      className={`flex-1 py-2 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1 ${
-                        hasLiked(profile.id) ? "bg-red-100 dark:bg-red-900/30 text-red-600" : "bg-primary-50 dark:bg-primary-900/20 text-primary-600 hover:bg-primary-100"
-                      }`}>
-                      <Heart className={`w-4 h-4 ${hasLiked(profile.id) ? "fill-red-500" : ""}`} />
-                      {hasLiked(profile.id) ? "Aimé" : "J'aime"}
-                    </button>
-                    {isMatched(profile.id) && (
-                      <Link href="/messages/" className="flex-1 py-2 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-xl text-sm font-medium transition flex items-center justify-center gap-1">
-                        <MessageCircle className="w-4 h-4" />Message
-                      </Link>
+          <>
+            {/* Carte profil */}
+            <div className="relative h-[500px] mb-6">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentProfile.id}
+                  initial={{ opacity: 0, x: direction * 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: direction * -100 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="absolute inset-0 bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-700"
+                >
+                  {/* Photo */}
+                  <div className="relative h-3/5">
+                    <Image
+                      src={currentProfile.photos?.find(p => p.isMain)?.url || currentProfile.photos?.[0]?.url || "/default-avatar.png"}
+                      alt={currentProfile.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 500px"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    
+                    {/* Badge vérifié */}
+                    {currentProfile.verificationStatus === "verified" && (
+                      <div className="absolute top-4 right-4">
+                        <VerificationBadge status="verified" size="sm" showLabel />
+                      </div>
                     )}
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+
+                  {/* Info */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h2 className="text-2xl font-bold text-white">{currentProfile.name}, {currentProfile.age}</h2>
+                      {currentProfile.verificationStatus === "verified" && (
+                        <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-white/80 mb-3">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{currentProfile.city}, {currentProfile.country}</span>
+                    </div>
+                    {currentProfile.bio && (
+                      <p className="text-white/70 text-sm line-clamp-2">{currentProfile.bio}</p>
+                    )}
+                    
+                    {/* Tags */}
+                    <div className="flex gap-2 mt-3">
+                      {currentProfile.religion && (
+                        <span className="px-2 py-1 bg-white/20 text-white text-xs rounded-lg backdrop-blur-sm">
+                          {currentProfile.religion}
+                        </span>
+                      )}
+                      {currentProfile.maritalStatus && (
+                        <span className="px-2 py-1 bg-white/20 text-white text-xs rounded-lg backdrop-blur-sm">
+                          {currentProfile.maritalStatus}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={handlePass}
+                className="w-14 h-14 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:scale-110 transition text-red-500"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              <button
+                onClick={handleSuperLike}
+                className="w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:scale-110 transition text-blue-500"
+              >
+                <Star className="w-5 h-5" fill="currentColor" />
+              </button>
+              
+              <button
+                onClick={handleLike}
+                className="w-14 h-14 bg-primary-600 rounded-full shadow-lg shadow-primary-600/30 flex items-center justify-center hover:scale-110 transition text-white"
+              >
+                <Heart className="w-6 h-6" fill="currentColor" />
+              </button>
+            </div>
+
+            {/* Compteur */}
+            <p className="text-center text-sm text-gray-500 mt-4">
+              {currentIndex + 1} / {profiles.length} profils
+            </p>
+          </>
         )}
       </div>
-
-      {showMatch && matchedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-gray-900 rounded-3xl p-8 max-w-sm w-full text-center border border-primary-500/30 shadow-2xl animate-scale-in">
-            <div className="w-20 h-20 bg-primary-600/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-              <Heart className="w-10 h-10 text-primary-500" fill="currentColor" />
-            </div>
-            <h2 className="text-3xl font-bold mb-2 text-white">C'est un Match !</h2>
-            <p className="text-gray-400 mb-6">Vous et {matchedUser.name} vous aimez mutuellement !</p>
-            <div className="flex gap-3">
-              <button onClick={() => setShowMatch(false)} className="flex-1 py-3 bg-gray-800 text-white rounded-xl font-medium hover:bg-gray-700 transition">Continuer</button>
-              <button onClick={() => { setShowMatch(false); router.push("/messages/"); }} className="flex-1 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-500 transition">Envoyer un message</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

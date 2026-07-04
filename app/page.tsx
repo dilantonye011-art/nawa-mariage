@@ -12,7 +12,7 @@ export default function LandingPage() {
     }
   }, []);
 
-  const stats = useLandingStats();
+  const { stats, loading } = useLandingStats();
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -48,9 +48,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { icon: Users, value: stats.users, label: "Célibataires" },
-              { icon: Heart, value: stats.couples, label: "Couples formés" },
-              { icon: Star, value: stats.matches, label: "Matchs par jour" },
+              { icon: Users, value: stats?.users || "0", label: "Célibataires" },
+              { icon: Heart, value: stats?.couples || "0", label: "Couples formés" },
+              { icon: Star, value: stats?.matches || "0", label: "Matchs par jour" },
               { icon: TrendingUp, value: "94%", label: "Satisfaction" },
             ].map((stat, i) => (
               <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700">
@@ -126,3 +126,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

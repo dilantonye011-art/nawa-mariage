@@ -34,13 +34,7 @@ export default function RootLayout({
     <html lang="fr" suppressHydrationWarning>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
         <script dangerouslySetInnerHTML={{ __html: `
-          (function() {
-            if (window.__reloaded) return;
-            if (!window.location.search.includes('v=') && !window.location.pathname.includes('/_next/')) {
-              window.__reloaded = true;
-              window.location.href = window.location.pathname + '?v=' + Date.now();
-            }
-          })();
+          
         `}} />
         <ToastProvider>
           {children}
@@ -51,4 +45,5 @@ export default function RootLayout({
     </html>
   );
 }
+
 

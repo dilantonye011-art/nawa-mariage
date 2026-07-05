@@ -1,5 +1,6 @@
 ﻿"use client";
 import { useEffect } from "react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 import { Heart, Shield, MessageCircle, Sparkles, Users, Check, ArrowRight, Star, TrendingUp } from "lucide-react";
 import { useLandingStats } from "@/hooks/useLandingStats";
@@ -12,7 +13,10 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
+      <section className="relative overflow-hidden
+        <div className="absolute top-4 right-4 z-20">
+          <ThemeToggle />
+        </div> bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
         <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10"></div>
         <div className="max-w-6xl mx-auto px-4 py-20 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
@@ -121,4 +125,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
 

@@ -1,226 +1,83 @@
-﻿rules_version = '2';
+rules_version = "2";
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // ============================================
-    // FONCTIONS UTILITAIRES
-    // ============================================
-    
-    // Vérifier si l'utilisateur est authentifié
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    // Vérifier si l'utilisateur est le propriétaire du document
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
     
-    // Vérifier si l'utilisateur est admin
     function isAdmin() {
       return isAuthenticated() && 
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     
-    // Vérifier que les données utilisateur sont valides
-    function isValidUser() {
-      return request.resource.data.keys().hasAll(['id', 'email', 'name']) &&
-             request.resource.data.id is string &&
-             request.resource.data.email is string &&
-             request.resource.data.name is string;
-    }
-    
-    // ============================================
-    // COLLECTION USERS
-    // ============================================
-    
     match /users/{userId} {
-      // Lire : propriétaire ou admin
       allow read: if isOwner(userId) || isAdmin();
-      
-      // Créer : authentifié et données valides
-      allow create: if isAuthenticated() && 
-                     request.auth.uid == userId && 
-                     isValidUser();
-      
-      // Modifier : propriétaire uniquement
-      allow update: if isOwner(userId) && 
-                     (request.resource.data.diff(resource.data).affectedKeys()
-                       .hasOnly(['name', 'age', 'city', 'country', 'bio', 
-                                'photos', 'religion', 'maritalStatus', 
-                                'verificationStatus', 'preferences', 'updatedAt']));
-      
-      // Supprimer : admin uniquement
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId);
       allow delete: if isAdmin();
     }
     
-    // ============================================
-    // COLLECTION MESSAGES
-    // ============================================
-    
     match /conversations/{conversationId} {
-      // Lire : participant de la conversation
-      allow read: if isAuthenticated() && 
-                    (resource.data.participants[request.auth.uid] == true);
-      
-      // Créer : authentifié et participant
-      allow create: if isAuthenticated() && 
-                      request.resource.data.participants[request.auth.uid] == true;
-      
-      // Modifier : participant uniquement (pour ajouter des messages)
-      allow update: if isAuthenticated() && 
-                      resource.data.participants[request.auth.uid] == true;
+      allow read: if isAuthenticated() && resource.data.participants[request.auth.uid] == true;
+      allow create: if isAuthenticated() && request.resource.data.participants[request.auth.uid] == true;
+      allow update: if isAuthenticated() && resource.data.participants[request.auth.uid] == true;
     }
     
     match /conversations/{conversationId}/messages/{messageId} {
-      // Lire : participant de la conversation
-      allow read: if isAuthenticated() && 
-                    get(/databases/$(database)/documents/conversations/$(conversationId))
-                      .data.participants[request.auth.uid] == true;
-      
-      // Créer : participant et sender correct
-      allow create: if isAuthenticated() && 
-                      request.resource.data.senderId == request.auth.uid &&
-                      get(/databases/$(database)/documents/conversations/$(conversationId))
-                        .data.participants[request.auth.uid] == true;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
     }
-    
-    // ============================================
-    // COLLECTION MATCHES
-    // ============================================
     
     match /matches/{matchId} {
-      // Lire : participant du match
-      allow read: if isAuthenticated() && 
-                    (resource.data.user1Id == request.auth.uid || 
-                     resource.data.user2Id == request.auth.uid);
-      
-      // Créer : authentifié
-      allow create: if isAuthenticated() && 
-                      (request.resource.data.user1Id == request.auth.uid || 
-                       request.resource.data.user2Id == request.auth.uid);
-      
-      // Modifier : participant uniquement
-      allow update: if isAuthenticated() && 
-                      (resource.data.user1Id == request.auth.uid || 
-                       resource.data.user2Id == request.auth.uid);
+      allow read: if isAuthenticated() && (resource.data.user1Id == request.auth.uid || resource.data.user2Id == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (resource.data.user1Id == request.auth.uid || resource.data.user2Id == request.auth.uid);
     }
-    
-    // ============================================
-    // COLLECTION LIKES
-    // ============================================
     
     match /likes/{likeId} {
-      // Lire : propriétaire ou admin
-      allow read: if isAuthenticated() && 
-                    (resource.data.fromUserId == request.auth.uid || 
-                     resource.data.toUserId == request.auth.uid || 
-                     isAdmin());
-      
-      // Créer : authentifié
-      allow create: if isAuthenticated() && 
-                      request.resource.data.fromUserId == request.auth.uid;
-      
-      // Supprimer : propriétaire
-      allow delete: if isAuthenticated() && 
-                      resource.data.fromUserId == request.auth.uid;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.fromUserId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.fromUserId == request.auth.uid;
     }
-    
-    // ============================================
-    // COLLECTION NOTIFICATIONS
-    // ============================================
     
     match /notifications/{notificationId} {
-      // Lire : destinataire uniquement
-      allow read: if isAuthenticated() && 
-                    resource.data.userId == request.auth.uid;
-      
-      // Créer : authentifié (système ou admin)
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticated();
-      
-      // Modifier : destinataire (pour marquer comme lu)
-      allow update: if isAuthenticated() && 
-                      resource.data.userId == request.auth.uid;
-      
-      // Supprimer : destinataire
-      allow delete: if isAuthenticated() && 
-                      resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
     
-    // ============================================
-    // COLLECTION VERIFICATION REQUESTS
-    // ============================================
-    
     match /verificationRequests/{requestId} {
-      // Lire : propriétaire ou admin
-      allow read: if isAuthenticated() && 
-                    (resource.data.userId == request.auth.uid || isAdmin());
-      
-      // Créer : authentifié
-      allow create: if isAuthenticated() && 
-                      request.resource.data.userId == request.auth.uid;
-      
-      // Modifier : admin uniquement (pour approuver/rejeter)
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update: if isAdmin();
-      
-      // Supprimer : admin uniquement
       allow delete: if isAdmin();
     }
     
-    // ============================================
-    // COLLECTION ADMINS
-    // ============================================
-    
     match /admins/{adminId} {
-      // Lire : admin uniquement
-      allow read: if isAdmin();
-      
-      // Écrire : admin uniquement
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
-    
-    // ============================================
-    // COLLECTION STATS (landing page)
-    // ============================================
     
     match /stats/{docId} {
-      // Lire : tout le monde (public)
       allow read: if true;
-      
-      // Écrire : admin uniquement
       allow write: if isAdmin();
     }
     
-    // ============================================
-    // COLLECTION COMPATIBILITY ANSWERS
-    // ============================================
-    
     match /compatibilityAnswers/{userId} {
-      // Lire : propriétaire ou admin
       allow read: if isOwner(userId) || isAdmin();
-      
-      // Créer/Modifier : propriétaire uniquement
       allow write: if isOwner(userId);
     }
     
-    // ============================================
-    // COLLECTION REPORTS (signalements)
-    // ============================================
-    
     match /reports/{reportId} {
-      // Lire : admin uniquement
       allow read: if isAdmin();
-      
-      // Créer : authentifié
       allow create: if isAuthenticated();
-      
-      // Modifier : admin uniquement
       allow update: if isAdmin();
     }
-    
-    // ============================================
-    // BLOQUER TOUT ACCÈS NON DÉFINI
-    // ============================================
     
     match /{document=**} {
       allow read, write: if false;

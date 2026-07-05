@@ -33,11 +33,20 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
   <head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <script>
+      (function() {
+        // Si on a déjà rechargé, ne pas boucler
+        if (window.__reloaded) return;
+        
+        // Vérifier si on est sur la page sans paramètre cache
+        if (!window.location.search.includes('v=')) {
+          window.__reloaded = true;
+          window.location.href = window.location.pathname + '?v=' + Date.now();
+        }
+      })();
+    </script>
   </head>
-      <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
+<body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
         <ToastProvider>
       <script dangerouslySetInnerHTML={{ __html: `
         (function() {
@@ -58,5 +67,6 @@ export default function RootLayout({
     </html>
   );
 }
+
 
 

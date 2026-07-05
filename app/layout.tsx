@@ -35,6 +35,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
         <ThemeProvider>
         <ThemeProvider>
+        <ThemeProvider>
         <script dangerouslySetInnerHTML={{ __html: `
           
         `}} />
@@ -45,10 +46,12 @@ export default function RootLayout({
         </ToastProvider>
               </ThemeProvider>
         </ThemeProvider>
+        </ThemeProvider>
 </body>
     </html>
   );
 }
+
 
 
 

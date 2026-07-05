@@ -34,6 +34,7 @@ export default function RootLayout({
     <html lang="fr" suppressHydrationWarning>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
         <ThemeProvider>
+        <ThemeProvider>
         <script dangerouslySetInnerHTML={{ __html: `
           
         `}} />
@@ -43,10 +44,12 @@ export default function RootLayout({
           <PWAInstallPrompt />
         </ToastProvider>
               </ThemeProvider>
+        </ThemeProvider>
 </body>
     </html>
   );
 }
+
 
 
 

@@ -1,6 +1,6 @@
 ﻿import type { Metadata, Viewport } from "next";
-import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
+import { ToastProvider } from "@/components/ToastProvider";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
@@ -32,41 +32,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" suppressHydrationWarning>
-  <head>
-    <script>
-      (function() {
-        // Si on a déjà rechargé, ne pas boucler
-        if (window.__reloaded) return;
-        
-        // Vérifier si on est sur la page sans paramètre cache
-        if (!window.location.search.includes('v=')) {
-          window.__reloaded = true;
-          window.location.href = window.location.pathname + '?v=' + Date.now();
-        }
-      })();
-    </script>
-  </head>
-<body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
-        <ToastProvider>
-      <script dangerouslySetInnerHTML={{ __html: `
-        (function() {
-          var originalError = window.onerror;
-          window.onerror = function(msg, url, line, col, error) {
-            if (msg && (msg.toString().includes('ChunkLoadError') || msg.toString().includes('Loading chunk') || msg.toString().includes('404'))) {
-              console.log('Chunk manquant, reload forcé...');
-              window.location.reload(true);
-              return true;
+      <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            if (window.__reloaded) return;
+            if (!window.location.search.includes('v=') && !window.location.pathname.includes('/_next/')) {
+              window.__reloaded = true;
+              window.location.href = window.location.pathname + '?v=' + Date.now();
             }
-            if (originalError) return originalError(msg, url, line, col, error);
-          };
-        })();
-      `}} />{children}
+          })();
+        `}} />
+        <ToastProvider>
+          {children}
           <ServiceWorkerRegister />
-          <PWAInstallPrompt />        </ToastProvider>
-</body>
+          <PWAInstallPrompt />
+        </ToastProvider>
+      </body>
     </html>
   );
 }
-
-
-

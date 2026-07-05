@@ -5,12 +5,7 @@ import { Heart, Shield, MessageCircle, Sparkles, Users, Check, ArrowRight, Star,
 import { useLandingStats } from "@/hooks/useLandingStats";
 
 export default function LandingPage() {
-  useEffect(() => {
-    // Forcer le cache bust si pas de paramètre
-    if (!window.location.search.includes("v=")) {
-      window.location.href = window.location.pathname + "?v=" + Date.now();
-    }
-  }, []);
+  
 
   const { stats, loading } = useLandingStats();
 
@@ -126,3 +121,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

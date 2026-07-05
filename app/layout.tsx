@@ -1,6 +1,7 @@
 ﻿import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";`nimport { ToastProvider } from "@/components/ToastProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ToastProvider } from "@/components/ToastProvider";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
@@ -15,8 +16,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Nawa Mariage - Trouvez l'amour pour le mariage",
-  description: "La première application de rencontre musulmane 100% axée sur le mariage en Afrique. Algorithme de compatibilité, profils vérifiés, messagerie sécurisée.",
-  keywords: ["mariage", "rencontre", "musulman", "afrique", "amour", "compatibilité"],
+  description: "La premiere application de rencontre musulmane 100% axee sur le mariage en Afrique.",
+  keywords: ["mariage", "rencontre", "musulman", "afrique", "amour"],
   authors: [{ name: "Nawa Mariage" }],
   openGraph: {
     title: "Nawa Mariage",
@@ -34,32 +35,13 @@ export default function RootLayout({
     <html lang="fr" suppressHydrationWarning>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
         <ThemeProvider>
-        <ThemeProvider>
-        <ThemeProvider>
-        <ThemeProvider>
-        <ThemeProvider>
-        <script dangerouslySetInnerHTML={{ __html: `
-          
-        `}} />
-        <ToastProvider>
-          {children}
-          <ServiceWorkerRegister />
-          <PWAInstallPrompt />
-        </ToastProvider>
-              </ThemeProvider>
+          <ToastProvider>
+            {children}
+            <ServiceWorkerRegister />
+            <PWAInstallPrompt />
+          </ToastProvider>
         </ThemeProvider>
-        </ThemeProvider>
-        </ThemeProvider>
-        </ThemeProvider>
-</body>
+      </body>
     </html>
   );
 }
-
-
-
-
-
-
-
-

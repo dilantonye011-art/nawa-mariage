@@ -12,7 +12,7 @@ export default function LandingPage() {
     }
   }, []);
 
-  const stats = useLandingStats();
+  const { stats, loading } = useLandingStats();
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -43,14 +43,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* STATS */}
+      {/* STATS RÉELLES */}
       <section className="py-12 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { icon: Users, value: "12K+", label: "Célibataires" },
-              { icon: Heart, value: "850+", label: "Couples formés" },
-              { icon: Star, value: "2.5K", label: "Matchs par jour" },
+              { icon: Users, value: loading ? "..." : stats.users, label: "Célibataires" },
+              { icon: Heart, value: loading ? "..." : stats.couples, label: "Couples formés" },
+              { icon: Star, value: loading ? "..." : stats.matches, label: "Matchs par jour" },
               { icon: TrendingUp, value: "94%", label: "Satisfaction" },
             ].map((stat, i) => (
               <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700">
@@ -121,10 +121,8 @@ export default function LandingPage() {
 
       {/* FOOTER */}
       <footer className="py-8 bg-gray-900 text-gray-400 text-center text-sm">
-        <p> Nawa Mariage. Trouvez l&apos;amour pour le mariage.</p>
+        <p>© Nawa Mariage. Trouvez l&apos;amour pour le mariage.</p>
       </footer>
     </div>
   );
 }
-
-

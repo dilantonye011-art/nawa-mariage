@@ -37,6 +37,7 @@ export default function RootLayout({
         <ThemeProvider>
         <ThemeProvider>
         <ThemeProvider>
+        <ThemeProvider>
         <script dangerouslySetInnerHTML={{ __html: `
           
         `}} />
@@ -49,10 +50,12 @@ export default function RootLayout({
         </ThemeProvider>
         </ThemeProvider>
         </ThemeProvider>
+        </ThemeProvider>
 </body>
     </html>
   );
 }
+
 
 
 

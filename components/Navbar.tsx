@@ -15,7 +15,7 @@ const navItems = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   if (!user) return null;
 
@@ -40,7 +40,7 @@ export function Navbar() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <button onClick={signOut} className="hidden md:flex p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" title="Deconnexion">
+            <button onClick={logout} className="hidden md:flex p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" title="Deconnexion">
               <LogOut className="w-4 h-4" />
             </button>
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800">
@@ -57,7 +57,7 @@ export function Navbar() {
                   {item.label}
                 </Link>
               ))}
-              <button onClick={() => { signOut(); setMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600">
+              <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600">
                 <LogOut className="w-5 h-5" />
                 Deconnexion
               </button>
@@ -68,3 +68,4 @@ export function Navbar() {
     </nav>
   );
 }
+

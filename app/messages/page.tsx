@@ -1,6 +1,13 @@
 ﻿"use client";
 
-function getImageUrl(photo){if(!photo)return"/default-avatar.svg";const url=typeof photo==="string"?photo:photo?.url;if(!url)return"/default-avatar.svg";if(url.startsWith("data:"))return"/default-avatar.svg";if(url.startsWith("https://ibb.co/"))return url.replace("https://ibb.co/","https://i.ibb.co/");return url;}
+function getImageUrl(photo: string | { url?: string } | null | undefined): string {
+  if (!photo) return "/default-avatar.svg";
+  const url = typeof photo === "string" ? photo : photo?.url;
+  if (!url) return "/default-avatar.svg";
+  if (url.startsWith("data:")) return "/default-avatar.svg";
+  if (url.startsWith("https://ibb.co/")) return url.replace("https://ibb.co/", "https://i.ibb.co/");
+  return url;
+}
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, MessageCircle, Users, Clock } from "lucide-react";
@@ -62,5 +69,6 @@ export default function MessagesPage() {
     </div>
   );
 }
+
 
 

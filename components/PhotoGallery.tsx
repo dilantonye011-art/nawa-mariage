@@ -1,4 +1,6 @@
 ﻿"use client";
+
+function getImageUrl(photo){if(!photo)return"/default-avatar.svg";const url=typeof photo==="string"?photo:photo?.url;if(!url)return"/default-avatar.svg";if(url.startsWith("data:"))return"/default-avatar.svg";if(url.startsWith("https://ibb.co/"))return url.replace("https://ibb.co/","https://i.ibb.co/");return url;}
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { X, Star, Upload, Loader2, AlertCircle } from "lucide-react";
@@ -89,7 +91,7 @@ export function PhotoGallery({ userId, photos, onPhotosChange }: PhotoGalleryPro
               className={`aspect-square rounded-xl overflow-hidden relative group ${photo.isMain ? "ring-2 ring-primary-500 ring-offset-2" : ""}`}
             >
               <Image
-                src={photo.url}
+                src={getImageUrl(photo)}
                 alt={`Photo ${index + 1}`}
                 fill
                 className="object-cover"
@@ -168,3 +170,4 @@ export function PhotoGallery({ userId, photos, onPhotosChange }: PhotoGalleryPro
     </div>
   );
 }
+

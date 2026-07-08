@@ -1,4 +1,6 @@
 ﻿"use client";
+
+function getImageUrl(photo){if(!photo)return"/default-avatar.svg";const url=typeof photo==="string"?photo:photo?.url;if(!url)return"/default-avatar.svg";if(url.startsWith("data:"))return"/default-avatar.svg";if(url.startsWith("https://ibb.co/"))return url.replace("https://ibb.co/","https://i.ibb.co/");return url;}
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -238,5 +240,6 @@ export default function DiscoverPage() {
     </div>
   );
 }
+
 
 

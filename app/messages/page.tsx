@@ -1,4 +1,6 @@
 ﻿"use client";
+
+function getImageUrl(photo){if(!photo)return"/default-avatar.svg";const url=typeof photo==="string"?photo:photo?.url;if(!url)return"/default-avatar.svg";if(url.startsWith("data:"))return"/default-avatar.svg";if(url.startsWith("https://ibb.co/"))return url.replace("https://ibb.co/","https://i.ibb.co/");return url;}
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, MessageCircle, Users, Clock } from "lucide-react";
@@ -44,7 +46,7 @@ export default function MessagesPage() {
               return (
                 <Link key={convo.id} href={`/messages/${convo.id}/`} className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700 flex items-center gap-4 hover:border-primary-300 dark:hover:border-primary-700 transition">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {otherUser.photos?.[0] ? <img src={typeof otherUser.photos?.[0] === "string" ? (otherUser.photos[0].startsWith("data:") ? "/default-avatar.svg" : otherUser.photos[0]) : "/default-avatar.svg"} alt={otherUser.name} className="w-full h-full object-cover" /> : <Users className="w-5 h-5 text-gray-400" />}
+                    {getImageUrl(otherUser.photos?.[0]) ? <img src={typeof getImageUrl(otherUser.photos?.[0]) === "string" ? (otherUser.photos[0].startsWith("data:") ? "/default-avatar.svg" : otherUser.photos[0]) : "/default-avatar.svg"} alt={otherUser.name} className="w-full h-full object-cover" /> : <Users className="w-5 h-5 text-gray-400" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-gray-900 dark:text-white">{otherUser.name}</h3>
@@ -60,4 +62,5 @@ export default function MessagesPage() {
     </div>
   );
 }
+
 

@@ -1,6 +1,6 @@
 ﻿import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";`nimport { Navbar } from "@/components/Navbar";
 import { ToastProvider } from "@/components/ToastProvider";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased">
-        <ThemeProvider>
+        <ThemeProvider>`n        <Navbar />
           <ToastProvider>
             {children}
             <ServiceWorkerRegister />

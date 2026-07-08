@@ -150,7 +150,7 @@ export function useProfilePhotos(userId: string | undefined) {
       setProgress(95);
 
       const photo: Photo = {
-        url: result.data.url,
+        url: result.data.display_url || result.data.image?.url || result.data.url,
         deleteUrl: result.data.delete_url || "",
         isMain: isMain || currentPhotos.length === 0,
         uploadedAt: new Date().toISOString(),
@@ -227,3 +227,4 @@ export function useProfilePhotos(userId: string | undefined) {
 
   return { uploadPhoto, deletePhoto, setMainPhoto, uploading, progress, error, setError };
 }
+

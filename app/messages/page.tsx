@@ -9,6 +9,7 @@ function getImageUrl(photo: string | { url?: string } | null | undefined): strin
   return url;
 }
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, MessageCircle, Users, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -69,6 +70,7 @@ export default function MessagesPage() {
     </div>
   );
 }
+
 
 
 

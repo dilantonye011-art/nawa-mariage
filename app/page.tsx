@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
 import { Heart, Shield, MessageCircle, Sparkles, Users, Check, ArrowRight, Star, TrendingUp } from "lucide-react";
 import { useLandingStats } from "@/hooks/useLandingStats";
@@ -19,20 +19,20 @@ export default function LandingPage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
-              La premiere app de rencontre musulmane 100% mariage
+              La premiere app 100% mariage en Afrique francophone
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Trouvez l&apos;amour pour le <span className="text-yellow-300">mariage</span>
+              Nawa, l&apos;app qui vous rapproche des personnes <span className="text-yellow-300">vraiment compatibles</span> avec vous
             </h1>
             <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-              Nawa Mariage connecte des celibataires musulmans en Afrique grace a un algorithme de compatibilite avance.
+              Fini le swipe a l&apos;aveugle. Nawa analyse vos valeurs et votre vision du couple pour vous mettre en relation avec des celibataires serieux, prets pour un engagement durable, partout en Afrique francophone et dans la diaspora.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register/" className="px-8 py-4 bg-white text-primary-700 rounded-2xl font-bold text-lg hover:bg-gray-100 transition shadow-xl">
-                Commencer gratuitement
+                Decouvrir mon profil de compatibilite
               </Link>
-              <Link href="/login/" className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-2xl font-bold text-lg hover:bg-white/20 transition border border-white/20">
-                Se connecter
+              <Link href="#methode" className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-2xl font-bold text-lg hover:bg-white/20 transition border border-white/20">
+                Comment ca marche
               </Link>
             </div>
           </div>
@@ -59,24 +59,35 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* COMMENT CA MARCHE */}
-      <section className="py-20">
+      {/* NOTRE METHODE */}
+      <section id="methode" className="py-20">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Comment ca marche</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">La compatibilite avant tout, pas l&apos;apparence</h2>
+          <p className="text-center text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-12">
+            Sur Nawa, votre profil ne se limite pas a des photos. Avant de vous mettre en relation avec qui que ce soit, nous cherchons a comprendre ce qui compte vraiment pour vous.
+          </p>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { step: "1", title: "Creez votre profil", desc: "Inscrivez-vous et completez votre profil avec photos et preferences." },
-              { step: "2", title: "Trouvez des matchs", desc: "Notre algorithme vous suggere des profils compatibles." },
-              { step: "3", title: "Discutez et rencontrez", desc: "Messagerie securisee pour faire connaissance en toute serenite." },
+              { step: "1", emoji: "📝", title: "Repondez a notre test de compatibilite", desc: "Quelques questions simples, deux minutes chrono, sur votre vision du couple et vos priorites de vie." },
+              { step: "2", emoji: "💫", title: "Decouvrez votre profil et votre match ideal", desc: "Vous obtenez votre profil de compatibilite ainsi que le profil qui vous correspond le mieux." },
+              { step: "3", emoji: "✅", title: "Echangez avec des profils compatibles et verifies", desc: "Nous vous mettons en relation avec des celibataires dont le profil rejoint le votre, tous valides par notre equipe." },
             ].map((item, i) => (
               <div key={i} className="text-center">
                 <div className="w-16 h-16 bg-primary-600 text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                  {item.step}
+                  {item.emoji}
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{item.title}</h3>
                 <p className="text-gray-600 dark:text-gray-400">{item.desc}</p>
               </div>
             ))}
+          </div>
+          <p className="text-center text-gray-500 dark:text-gray-400 italic mt-12 max-w-xl mx-auto">
+            Parce qu&apos;un mariage reussi commence avant tout par une vraie compatibilite, pas par un like.
+          </p>
+          <div className="text-center mt-8">
+            <Link href="/register/" className="inline-block px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-lg hover:bg-primary-700 transition shadow-xl">
+              Faire le test de compatibilite
+            </Link>
           </div>
         </div>
       </section>
@@ -88,9 +99,9 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: Shield, title: "Profils verifies", desc: "Verification d'identite pour plus de confiance." },
-              { icon: Heart, title: "Compatibilite", desc: "Algorithme base sur vos valeurs et criteres." },
+              { icon: Heart, title: "Compatibilite profonde", desc: "Un profil base sur vos valeurs, pas seulement vos criteres." },
               { icon: MessageCircle, title: "Messagerie securisee", desc: "Discutez en toute confidentialite." },
-              { icon: Check, title: "100% Mariage", desc: "Des membres serieux et engages." },
+              { icon: Check, title: "100% Mariage", desc: "Des membres serieux et engages, pas de conversations sans lendemain." },
               { icon: Star, title: "Premium", desc: "Fonctionnalites avancees pour trouver plus vite." },
               { icon: ArrowRight, title: "Simple", desc: "Interface intuitive et moderne." },
             ].map((feature, i) => (
@@ -108,7 +119,7 @@ export default function LandingPage() {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Pret a trouver l&apos;amour ?</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">Rejoignez des milliers de celibataires musulmans en Afrique.</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">Rejoignez des milliers de celibataires serieux en Afrique francophone et dans la diaspora.</p>
           <Link href="/register/" className="inline-block px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-lg hover:bg-primary-700 transition shadow-xl">
             Creer mon compte gratuit
           </Link>

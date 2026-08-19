@@ -7,6 +7,8 @@ export interface BlogPost {
   excerpt: string;
   date: string;
   relatedProfile?: ProfileId;
+  relatedProfiles?: [ProfileId, ProfileId];
+  matchType?: "ideal" | "complementaire";
   content: string[];
 }
 
@@ -112,6 +114,108 @@ export const posts: BlogPost[] = [
       "Avec qui êtes-vous le plus compatible ?",
       "Le Cœur Spirituel est votre match idéal : sa sincérité et son attachement à des valeurs profondes rejoignent directement votre besoin de confiance durable. Le Bâtisseur de Projet est un bon complément également : sa détermination bénéficie de votre stabilité, tandis que vous trouvez en lui un cadre concret et rassurant.",
       "Faites le test de compatibilité Nawa pour découvrir votre profil complet et les célibataires sérieux qui partagent votre vision du couple.",
+    ],
+  },
+  {
+    slug: "paire-ancrage-familial-complice-quotidien",
+    title: "Ancrage Familial x Complice du Quotidien : le duo qui construit un foyer solide",
+    metaDescription: "Pourquoi les profils Ancrage Familial et Complice du Quotidien forment l'une des paires de compatibilité les plus solides sur Nawa.",
+    excerpt: "Deux profils qui placent la chaleur du foyer et les petits moments au centre du couple.",
+    date: "2026-09-06",
+    relatedProfiles: ["ancrage_familial", "complice_quotidien"],
+    matchType: "ideal",
+    content: [
+      "Sur Nawa, cette paire fait partie de celles qui affichent le score de compatibilité le plus élevé — et ce n'est pas un hasard statistique. Ancrage Familial et Complice du Quotidien partagent une même conviction : le mariage se vit et se construit dans les gestes simples du quotidien, pas dans les grandes déclarations.",
+      "Ce qui les rapproche",
+      "L'Ancrage Familial apporte la structure et la vision à long terme d'un foyer stable. Le Complice du Quotidien apporte la légèreté et la capacité à savourer chaque moment, sans laisser la routine s'installer. L'un construit le cadre, l'autre le remplit de vie — la combinaison fonctionne parce qu'aucun des deux n'impose une vision opposée à l'autre.",
+      "Le point de vigilance",
+      "Le risque, dans cette paire, est que l'Ancrage Familial pousse trop vite vers de grandes étapes (installation, enfants, projets familiaux) avant que le Complice du Quotidien n'ait eu le temps de construire la complicité qui le rassure. Prendre le temps de la légèreté avant de formaliser évite cette friction.",
+      "Faites le test de compatibilité Nawa pour découvrir votre profil et savoir si vous formez, vous aussi, une paire à fort potentiel.",
+    ],
+  },
+  {
+    slug: "paire-ancrage-familial-coeur-spirituel",
+    title: "Ancrage Familial x Cœur Spirituel : un socle de valeurs communes",
+    metaDescription: "La paire Ancrage Familial et Cœur Spirituel repose sur un socle de valeurs partagées. Découvrez pourquoi cette compatibilité fonctionne bien.",
+    excerpt: "Deux visions du couple ancrées dans la stabilité et des valeurs profondes.",
+    date: "2026-09-08",
+    relatedProfiles: ["ancrage_familial", "coeur_spirituel"],
+    matchType: "ideal",
+    content: [
+      "Cette paire repose sur un point commun fort : les deux profils cherchent un mariage bâti sur des fondations solides, qu'elles soient familiales ou spirituelles. C'est cette convergence de fond qui fait le succès de cette compatibilité.",
+      "Ce qui les rapproche",
+      "L'Ancrage Familial veut un foyer stable et transmissible. Le Cœur Spirituel veut un couple aligné sur des valeurs profondes. Dans les deux cas, l'engagement se juge sur la durée et la cohérence, pas sur l'intensité du moment. Ensemble, ils construisent une relation où chacun sait ce que l'autre défend vraiment.",
+      "Le point de vigilance",
+      "Le Cœur Spirituel peut avoir besoin de discussions de fond régulières sur le sens du couple, là où l'Ancrage Familial se satisfait parfois de la stabilité concrète sans forcément la nommer. Prendre le temps de verbaliser les valeurs communes, plutôt que de les supposer acquises, renforce cette paire.",
+      "Faites le test de compatibilité Nawa pour découvrir votre profil et savoir si vous formez, vous aussi, une paire à fort potentiel.",
+    ],
+  },
+  {
+    slug: "paire-aventurier-engage-batisseur-projet",
+    title: "Aventurier Engagé x Bâtisseur de Projet : ambition et liberté main dans la main",
+    metaDescription: "Découvrez pourquoi Aventurier Engagé et Bâtisseur de Projet forment l'une des paires de compatibilité les plus dynamiques sur Nawa.",
+    excerpt: "Deux profils tournés vers l'avenir, chacun à sa façon.",
+    date: "2026-09-10",
+    relatedProfiles: ["aventurier_engage", "batisseur_projet"],
+    matchType: "ideal",
+    content: [
+      "Cette paire fonctionne parce qu'elle réunit deux moteurs différents autour d'une même direction : avancer. L'Aventurier Engagé avance par l'exploration et l'évolution personnelle, le Bâtisseur de Projet avance par la structuration et les objectifs concrets.",
+      "Ce qui les rapproche",
+      "Aucun des deux profils ne se satisfait de l'immobilisme. Cette énergie commune évite l'écueil classique où l'un des deux se sent freiné par l'autre. Le Bâtisseur de Projet donne un cadre aux envies de l'Aventurier Engagé, qui lui-même empêche le Bâtisseur de s'enfermer dans une routine trop rigide.",
+      "Le point de vigilance",
+      "Le risque est que chacun avance sur son propre projet sans suffisamment se synchroniser. Cette paire gagne à définir régulièrement des objectifs communs explicites, pour que l'énergie des deux profils converge plutôt que de simplement coexister.",
+      "Faites le test de compatibilité Nawa pour découvrir votre profil et savoir si vous formez, vous aussi, une paire à fort potentiel.",
+    ],
+  },
+  {
+    slug: "paire-coeur-spirituel-protecteur-discret",
+    title: "Cœur Spirituel x Protecteur Discret : loyauté et profondeur",
+    metaDescription: "La paire Cœur Spirituel et Protecteur Discret associe sincérité des valeurs et loyauté discrète. Découvrez cette compatibilité en détail.",
+    excerpt: "Une paire fondée sur la confiance durable et l'alignement de valeurs.",
+    date: "2026-09-12",
+    relatedProfiles: ["coeur_spirituel", "protecteur_discret"],
+    matchType: "ideal",
+    content: [
+      "Cette paire se distingue par une qualité rare : une confiance qui s'installe vite et dure longtemps. Le Cœur Spirituel cherche la sincérité et l'alignement de valeurs ; le Protecteur Discret cherche la loyauté et la sécurité affective. Les deux quêtes se rejoignent naturellement.",
+      "Ce qui les rapproche",
+      "Ni l'un ni l'autre ne fonctionne dans l'agitation ou la démonstration. Cette paire construit une relation posée, où l'engagement se prouve par la constance plutôt que par les grands gestes. Le Protecteur Discret sécurise la relation, le Cœur Spirituel lui donne du sens.",
+      "Le point de vigilance",
+      "Les deux profils étant naturellement réservés, cette paire peut manquer d'occasions de vraiment exprimer ce qu'elle ressent. Se forcer à verbaliser régulièrement l'attachement, plutôt que de le considérer comme implicite, évite que la relation ne devienne trop silencieuse.",
+      "Faites le test de compatibilité Nawa pour découvrir votre profil et savoir si vous formez, vous aussi, une paire à fort potentiel.",
+    ],
+  },
+  {
+    slug: "paire-aventurier-engage-complice-quotidien",
+    title: "Aventurier Engagé x Complice du Quotidien : l'équilibre entre mouvement et légèreté",
+    metaDescription: "Aventurier Engagé et Complice du Quotidien forment une paire complémentaire sur Nawa. Découvrez ce qui les rend compatibles malgré leurs différences.",
+    excerpt: "Un profil qui cherche le mouvement, un autre qui savoure l'instant présent.",
+    date: "2026-09-14",
+    relatedProfiles: ["aventurier_engage", "complice_quotidien"],
+    matchType: "complementaire",
+    content: [
+      "Contrairement aux paires de match idéal, cette compatibilité repose sur la complémentarité plutôt que sur la ressemblance. L'Aventurier Engagé a besoin de mouvement et de nouveauté ; le Complice du Quotidien sait savourer l'instant présent, où qu'il se trouve. C'est cet équilibre qui fait la force de cette paire.",
+      "Ce qui les rapproche",
+      "Le Complice du Quotidien empêche l'Aventurier Engagé de courir après la nouveauté sans jamais profiter du moment présent. En retour, l'Aventurier Engagé sort le Complice du Quotidien de sa zone de confort, sans jamais le brusquer.",
+      "Le point de vigilance",
+      "Le Complice du Quotidien peut se sentir déstabilisé si le rythme de changement est trop rapide ; l'Aventurier Engagé peut se sentir freiné si tout doit toujours rester familier. Trouver un rythme de nouveauté qui convient aux deux est la clé de cette paire.",
+      "Faites le test de compatibilité Nawa pour découvrir votre profil et savoir si vous formez, vous aussi, une paire à fort potentiel.",
+    ],
+  },
+  {
+    slug: "paire-batisseur-projet-protecteur-discret",
+    title: "Bâtisseur de Projet x Protecteur Discret : l'ambition portée par la stabilité",
+    metaDescription: "Bâtisseur de Projet et Protecteur Discret forment une paire complémentaire sur Nawa, entre détermination et prudence. Découvrez cette compatibilité.",
+    excerpt: "Un profil tourné vers l'action, un autre vers la stabilité — un bon équilibre.",
+    date: "2026-09-16",
+    relatedProfiles: ["batisseur_projet", "protecteur_discret"],
+    matchType: "complementaire",
+    content: [
+      "Cette paire associe deux forces différentes mais compatibles : la détermination du Bâtisseur de Projet et la prudence loyale du Protecteur Discret. Là où l'un pousse à avancer, l'autre veille à ce que les fondations restent solides.",
+      "Ce qui les rapproche",
+      "Le Bâtisseur de Projet apporte une direction claire et des objectifs concrets. Le Protecteur Discret apporte la stabilité affective et la constance nécessaires pour que ces projets tiennent dans la durée. L'un sans l'autre risquerait soit de stagner, soit d'avancer trop vite sans base solide.",
+      "Le point de vigilance",
+      "Le Bâtisseur de Projet peut parfois trouver le Protecteur Discret trop prudent face à une opportunité ; le Protecteur Discret peut trouver le rythme du Bâtisseur trop rapide. Prendre le temps d'expliciter les décisions importantes, plutôt que d'avancer dans l'urgence, renforce la confiance entre les deux.",
+      "Faites le test de compatibilité Nawa pour découvrir votre profil et savoir si vous formez, vous aussi, une paire à fort potentiel.",
     ],
   },
 ];

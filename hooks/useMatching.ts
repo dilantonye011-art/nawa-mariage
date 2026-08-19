@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import type { User } from "@/types";
+import { ProfileId, profileCompatibilityScore } from "@/lib/profiles";
 
 interface MatchScore {
   user: User;
@@ -83,16 +84,9 @@ async function calculateCompatibilityScore(userId: string, profileId: string): P
       getDoc(doc(db, "userAnswers", profileId)),
     ]);
     if (!userDoc.exists() || !profileDoc.exists()) return 0;
-    const userAns = userDoc.data().answers as Record<string, number>;
-    const profileAns = profileDoc.data().answers as Record<string, number>;
-    
-    let total = 0, count = 0;
-    Object.keys(userAns).forEach(qId => {
-      if (profileAns[qId] !== undefined) {
-        total += Math.max(0, 100 - Math.abs(userAns[qId] - profileAns[qId]) * 25);
-        count++;
-      }
-    });
-    return count > 0 ? Math.round(total / count) : 0;
+    const userPrimary = userDoc.data().primaryProfile as ProfileId | undefined;
+    const profilePrimary = profileDoc.data().primaryProfile as ProfileId | undefined;
+    if (!userPrimary || !profilePrimary) return 0;
+    return profileCompatibilityScore(userPrimary, profilePrimary);
   } catch { return 0; }
 }

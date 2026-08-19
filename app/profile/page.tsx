@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -114,7 +114,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex-1">
             <h3 className="font-medium text-gray-900 dark:text-white">{hasCompleted ? "Questionnaire complété" : "Questionnaire de compatibilité"}</h3>
-            <p className="text-sm text-gray-400">{hasCompleted ? "Vos réponses améliorent vos matchs" : "20 questions pour trouver votre âme sœur"}</p>
+            <p className="text-sm text-gray-400">{hasCompleted ? "Vos réponses améliorent vos matchs" : "Découvrez votre profil de compatibilité"}</p>
           </div>
           <ChevronRight className="w-5 h-5 text-gray-500" />
         </Link>

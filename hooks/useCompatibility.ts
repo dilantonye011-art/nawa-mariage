@@ -1,16 +1,12 @@
-﻿"use client";
+"use client";
 import { useState, useEffect, useCallback } from "react";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-
-export interface CompatibilityResult {
-  overallScore: number;
-  categoryScores: Record<string, number>;
-  details: string[];
-}
+import { computeProfile, ProfileId, CompatibilityProfileResult } from "@/lib/profiles";
 
 export function useCompatibility(userId?: string) {
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, ProfileId>>({});
+  const [result, setResult] = useState<CompatibilityProfileResult | null>(null);
   const [hasCompleted, setHasCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +16,15 @@ export function useCompatibility(userId?: string) {
       try {
         const snap = await getDoc(doc(db, "userAnswers", userId));
         if (snap.exists()) {
-          setAnswers(snap.data().answers || {});
+          const data = snap.data();
+          setAnswers(data.answers || {});
+          if (data.primaryProfile) {
+            setResult({
+              primary: data.primaryProfile,
+              secondary: data.secondaryProfile,
+              scores: data.scores || {},
+            });
+          }
           setHasCompleted(true);
         }
       } catch (e) { console.error(e); }
@@ -29,14 +33,22 @@ export function useCompatibility(userId?: string) {
     load();
   }, [userId]);
 
-  const saveAnswers = useCallback(async (newAnswers: Record<string, number>) => {
-    if (!userId) return;
+  const saveAnswers = useCallback(async (newAnswers: Record<string, ProfileId>) => {
+    if (!userId) return null;
+    const computed = computeProfile(newAnswers);
     await setDoc(doc(db, "userAnswers", userId), {
-      userId, answers: newAnswers, completedAt: new Date().toISOString(),
+      userId,
+      answers: newAnswers,
+      primaryProfile: computed?.primary || null,
+      secondaryProfile: computed?.secondary || null,
+      scores: computed?.scores || {},
+      completedAt: new Date().toISOString(),
     });
     setAnswers(newAnswers);
+    setResult(computed);
     setHasCompleted(true);
+    return computed;
   }, [userId]);
 
-  return { answers, hasCompleted, loading, saveAnswers };
+  return { answers, result, hasCompleted, loading, saveAnswers };
 }

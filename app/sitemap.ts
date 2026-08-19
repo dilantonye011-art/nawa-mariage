@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { posts } from "@/lib/posts";
+import { cities } from "@/lib/cities";
 
 const BASE_URL = "https://nawa-mariage.vercel.app";
 
@@ -19,5 +20,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...postRoutes];
+  const cityRoutes: MetadataRoute.Sitemap = cities.map((city) => ({
+    url: `${BASE_URL}/rencontre/${city.slug}/`,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...cityRoutes];
 }

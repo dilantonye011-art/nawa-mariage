@@ -63,8 +63,8 @@ export default function ChatPage() {
         if (convoDoc.exists()) {
           const data = convoDoc.data();
           const unread = data.unreadCount || {};
-          if (unread[user.uid] > 0) {
-            unread[user.uid] = 0;
+          if (unread[user.id] > 0) {
+            unread[user.id] = 0;
             await updateDoc(doc(db, "conversations", conversationId), { unreadCount: unread });
           }
         }
@@ -82,7 +82,7 @@ export default function ChatPage() {
     getDoc(doc(db, "conversations", conversationId)).then((snap) => {
       if (!snap.exists()) return;
       const data = snap.data();
-      const otherId = data.participantsIds?.find((id: string) => id !== user.uid);
+      const otherId = data.participantsIds?.find((id: string) => id !== user.id);
       if (otherId) {
         getDoc(doc(db, "users", otherId)).then((userSnap) => {
           if (userSnap.exists()) {
@@ -105,7 +105,7 @@ export default function ChatPage() {
     try {
       const messagesRef = collection(db, "conversations", conversationId, "messages");
       await addDoc(messagesRef, {
-        senderId: user.uid,
+        senderId: user.id,
         text: newMessage.trim(),
         createdAt: serverTimestamp(),
       });
@@ -115,7 +115,7 @@ export default function ChatPage() {
       if (convoSnap.exists()) {
         const data = convoSnap.data();
         const unread = data.unreadCount || {};
-        const otherId = data.participantsIds?.find((id: string) => id !== user.uid);
+        const otherId = data.participantsIds?.find((id: string) => id !== user.id);
         if (otherId) {
           unread[otherId] = (unread[otherId] || 0) + 1;
           await updateDoc(convoRef, {
@@ -185,7 +185,7 @@ export default function ChatPage() {
           </div>
         ) : (
           messages.map((msg) => {
-            const isMe = msg.senderId === user.uid;
+            const isMe = msg.senderId === user.id;
             return (
               <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                 <div

@@ -1,0 +1,19 @@
+# Nawa Mariage
+
+> Nawa Mariage est une application de rencontre en ligne pour l'Afrique francophone et sa diaspora, dédiée exclusivement aux relations sérieuses menant au mariage. Contrairement aux applications de rencontre casuelle, Nawa base le matching sur un test de compatibilité qui identifie les valeurs et la vision du couple de chaque membre, plutôt que sur des critères superficiels.
+
+## Fonctionnement
+
+Les membres répondent à un test de compatibilité de 7 questions qui détermine leur profil parmi 6 profils possibles (Ancrage Familial, Aventurier Engagé, Bâtisseur de Projet, Cœur Spirituel, Complice du Quotidien, Protecteur Discret). L'application suggère ensuite des profils compatibles selon une matrice de compatibilité entre ces profils. Chaque profil utilisateur est vérifié manuellement avant d'être visible.
+
+## Zone géographique
+
+Afrique francophone (Cameroun, Côte d'Ivoire, Sénégal, République démocratique du Congo, et autres pays francophones) ainsi que la diaspora (France, Belgique, Canada).
+
+## Pages principales
+
+- Accueil et présentation : /
+- Blog (articles sur la compatibilité de couple et les profils de personnalité amoureuse) : /blog/
+- Pages locales par ville : /rencontre/{ville}/
+- FAQ : /faq/
+- Inscription : /register/

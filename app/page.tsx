@@ -7,8 +7,19 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 export default function LandingPage() {
   const { stats, loading } = useLandingStats();
 
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Nawa Mariage",
+    url: "https://nawa-mariage.vercel.app",
+    description: "Application de rencontre serieuse pour l'Afrique francophone et sa diaspora, basee sur la compatibilite de valeurs plutot que le swipe, dediee au mariage.",
+    areaServed: ["Cameroun", "Cote d'Ivoire", "Senegal", "Republique democratique du Congo", "France", "Belgique", "Canada"],
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      {/* eslint-disable-next-line react/no-danger */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white">
         <div className="absolute top-4 right-4 z-20">

@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/messages/", "/profile/", "/matches/", "/discover/"],
+        disallow: ["/admin/", "/messages/", "/profile/", "/matches/", "/discover/", "/login/", "/register/"],
       },
     ],
     sitemap: "https://nawa-mariage.vercel.app/sitemap.xml",

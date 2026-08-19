@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
@@ -16,14 +16,22 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Nawa Mariage - Trouvez l'amour pour le mariage",
-  description: "La premiere application de rencontre musulmane 100% axee sur le mariage en Afrique.",
-  keywords: ["mariage", "rencontre", "musulman", "afrique", "amour"],
+  metadataBase: new URL("https://nawa-mariage.vercel.app"),
+  title: "Nawa Mariage - L'app qui vous rapproche des personnes compatibles",
+  description: "Nawa Mariage analyse vos valeurs et votre vision du couple pour vous mettre en relation avec des celibataires serieux, prets pour un engagement durable, en Afrique francophone et dans la diaspora.",
+  keywords: ["mariage", "rencontre serieuse", "compatibilite", "afrique francophone", "amour", "couple"],
   authors: [{ name: "Nawa Mariage" }],
   openGraph: {
-    title: "Nawa Mariage",
-    description: "Trouvez l'amour pour le mariage",
+    title: "Nawa Mariage - La compatibilite avant tout",
+    description: "Decouvrez votre profil de compatibilite et rencontrez des celibataires serieux, vraiment alignes avec vos valeurs.",
     type: "website",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nawa Mariage - La compatibilite avant tout",
+    description: "Decouvrez votre profil de compatibilite et rencontrez des celibataires serieux.",
+    images: ["/og-image.png"],
   },
 };
 

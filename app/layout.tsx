@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://nawa-mariage.vercel.app"),
   title: "Nawa Mariage - L'app qui vous rapproche des personnes compatibles",
-  description: "Nawa Mariage analyse vos valeurs et votre vision du couple pour vous mettre en relation avec des celibataires serieux, prets pour un engagement durable, en Afrique francophone et dans la diaspora.",
+  description: "Application de rencontre serieuse basee sur la compatibilite de valeurs. Trouvez un partenaire engage pour le mariage en Afrique francophone et sa diaspora.",
   keywords: ["mariage", "rencontre serieuse", "compatibilite", "afrique francophone", "amour", "couple"],
   authors: [{ name: "Nawa Mariage" }],
   openGraph: {

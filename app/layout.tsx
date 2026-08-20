@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
 import { ToastProvider } from "@/components/ToastProvider";
@@ -51,6 +52,7 @@ export default function RootLayout({
             <PWAInstallPrompt />
           </ToastProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

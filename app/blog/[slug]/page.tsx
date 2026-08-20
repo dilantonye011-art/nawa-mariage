@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen, Sparkles } from "lucide-react";
 import { posts, getPostBySlug } from "@/lib/posts";
 import { profiles } from "@/lib/profiles";
+import { TrackedCta } from "@/components/TrackedCta";
 
 export function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
@@ -71,9 +72,9 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
         </div>
         <div className="mt-10 p-6 bg-primary-600 rounded-2xl text-center">
           <p className="text-white font-medium mb-4">Découvrez votre propre profil de compatibilité</p>
-          <Link href="/register/" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary-700 rounded-xl font-bold hover:bg-gray-100 transition">
+          <TrackedCta href="/register/" location={`blog_${post.slug}`} className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary-700 rounded-xl font-bold hover:bg-gray-100 transition">
             <Sparkles className="w-4 h-4" />Faire le test gratuitement
-          </Link>
+          </TrackedCta>
         </div>
       </article>
     </div>

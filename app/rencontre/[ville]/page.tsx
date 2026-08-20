@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Sparkles, ShieldCheck, Heart } from "lucide-react";
 import { cities, getCityBySlug } from "@/lib/cities";
+import { TrackedCta } from "@/components/TrackedCta";
 
 export function generateStaticParams() {
   return cities.map((city) => ({ ville: city.slug }));
@@ -50,9 +51,9 @@ export default function CityPage({ params }: { params: { ville: string } }) {
           </div>
           <h1 className="text-3xl md:text-4xl font-bold mb-4">Rencontre sérieuse à {city.name} : trouvez votre profil de compatibilité</h1>
           <p className="text-white/80 mb-6">{city.intro}</p>
-          <Link href="/register/" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary-700 rounded-xl font-bold hover:bg-gray-100 transition">
+          <TrackedCta href="/register/" location={`ville_${city.slug}_hero`} className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary-700 rounded-xl font-bold hover:bg-gray-100 transition">
             <Sparkles className="w-4 h-4" />Faire le test de compatibilité
-          </Link>
+          </TrackedCta>
         </div>
       </div>
 
@@ -78,9 +79,9 @@ export default function CityPage({ params }: { params: { ville: string } }) {
 
         <div className="p-6 bg-primary-600 rounded-2xl text-center">
           <p className="text-white font-medium mb-4">Rejoignez les célibataires sérieux de {city.name} sur Nawa</p>
-          <Link href="/register/" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary-700 rounded-xl font-bold hover:bg-gray-100 transition">
+          <TrackedCta href="/register/" location={`ville_${city.slug}_final`} className="inline-flex items-center gap-2 px-6 py-3 bg-white text-primary-700 rounded-xl font-bold hover:bg-gray-100 transition">
             <Sparkles className="w-4 h-4" />Commencer gratuitement
-          </Link>
+          </TrackedCta>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -26,6 +26,7 @@ export default function AdminUsersPage() {
   const loadUsers = async () => {
     const snap = await getDocs(collection(db, "users"));
     const data = snap.docs.map(d => ({ ...d.data(), id: d.id } as User));
+    data.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     setUsers(data);
   };
 

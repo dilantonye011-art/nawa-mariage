@@ -12,7 +12,7 @@ export function generateMetadata({ params }: { params: { ville: string } }): Met
   const city = getCityBySlug(params.ville);
   if (!city) return {};
   const title = `Rencontre sérieuse à ${city.name} : trouvez votre profil de compatibilité | Nawa`;
-  const description = `Application de rencontre sérieuse à ${city.name}, ${city.country}. Découvrez votre profil de compatibilité et rencontrez des célibataires engagés pour le mariage.`;
+  const description = `Rencontre sérieuse à ${city.name}, ${city.country} : trouvez un partenaire engagé pour le mariage via un profil de compatibilité.`;
   return {
     title,
     description,

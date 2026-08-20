@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Heart, Shield, MessageCircle, Sparkles, Users, Check, ArrowRight, Star, TrendingUp } from "lucide-react";
 import { useLandingStats } from "@/hooks/useLandingStats";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { analytics } from "@/lib/analytics";
 
 export default function LandingPage() {
   const { stats, loading } = useLandingStats();
@@ -41,7 +42,7 @@ export default function LandingPage() {
                 Fini le swipe a l&apos;aveugle. Nawa analyse vos valeurs et votre vision du couple pour vous mettre en relation avec des celibataires serieux, prets pour un engagement durable, partout en Afrique francophone et dans la diaspora.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/register/" className="px-8 py-4 bg-white text-primary-700 rounded-2xl font-bold text-lg hover:bg-gray-100 transition shadow-xl">
+                <Link href="/register/" onClick={() => analytics.ctaClicked("hero")} className="px-8 py-4 bg-white text-primary-700 rounded-2xl font-bold text-lg hover:bg-gray-100 transition shadow-xl">
                   Decouvrir mon profil de compatibilite
                 </Link>
                 <Link href="#methode" className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-2xl font-bold text-lg hover:bg-white/20 transition border border-white/20">
@@ -109,7 +110,7 @@ export default function LandingPage() {
             Parce qu&apos;un mariage reussi commence avant tout par une vraie compatibilite, pas par un like.
           </p>
           <div className="text-center mt-8">
-            <Link href="/register/" className="inline-block px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-lg hover:bg-primary-700 transition shadow-xl">
+            <Link href="/register/" onClick={() => analytics.ctaClicked("methode")} className="inline-block px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-lg hover:bg-primary-700 transition shadow-xl">
               Faire le test de compatibilite
             </Link>
           </div>
@@ -149,7 +150,7 @@ export default function LandingPage() {
             <div className="text-center md:text-left order-1 md:order-2">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Pret a trouver l&apos;amour ?</h2>
               <p className="text-gray-600 dark:text-gray-400 mb-8">Rejoignez des milliers de celibataires serieux en Afrique francophone et dans la diaspora.</p>
-              <Link href="/register/" className="inline-block px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-lg hover:bg-primary-700 transition shadow-xl">
+              <Link href="/register/" onClick={() => analytics.ctaClicked("cta_final")} className="inline-block px-8 py-4 bg-primary-600 text-white rounded-2xl font-bold text-lg hover:bg-primary-700 transition shadow-xl">
                 Creer mon compte gratuit
               </Link>
             </div>

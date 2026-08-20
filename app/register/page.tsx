@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Heart, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { analytics } from "@/lib/analytics";
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
@@ -20,7 +21,7 @@ export default function RegisterPage() {
     e.preventDefault(); setError(""); setLoading(true);
     const success = await register({ ...formData, age: parseInt(formData.age) || 25 });
     setLoading(false);
-    if (success) router.push("/questionnaire/");
+    if (success) { analytics.signupCompleted("email"); router.push("/questionnaire/"); }
     else setError("Cet email est deja utilise");
   };
 

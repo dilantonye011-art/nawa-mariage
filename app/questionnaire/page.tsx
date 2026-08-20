@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useCompatibility } from "@/hooks/useCompatibility";
 import { profileQuestions, profiles, ProfileId } from "@/lib/profiles";
 import { ChevronRight, ChevronLeft, Check, Heart, Sparkles } from "lucide-react";
+import { analytics } from "@/lib/analytics";
 
 export default function QuestionnairePage() {
   const router = useRouter();
@@ -14,6 +15,22 @@ export default function QuestionnairePage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, ProfileId>>({});
   const [saving, setSaving] = useState(false);
+  const startTracked = useRef(false);
+  const resultTracked = useRef(false);
+
+  useEffect(() => {
+    if (user && !loading && !hasCompleted && !startTracked.current) {
+      startTracked.current = true;
+      analytics.questionnaireStarted();
+    }
+  }, [user, loading, hasCompleted]);
+
+  useEffect(() => {
+    if (hasCompleted && result && !resultTracked.current) {
+      resultTracked.current = true;
+      analytics.profileResultViewed(result.primary, profiles[result.primary].idealMatch);
+    }
+  }, [hasCompleted, result]);
 
   if (!user) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950">
@@ -46,7 +63,7 @@ export default function QuestionnairePage() {
             </div>
           </div>
 
-          <button onClick={() => router.push("/discover/")} className="px-6 py-3 bg-primary-600 rounded-xl font-medium hover:bg-primary-500 transition">
+          <button onClick={() => { analytics.ctaClicked("questionnaire_result"); router.push("/discover/"); }} className="px-6 py-3 bg-primary-600 rounded-xl font-medium hover:bg-primary-500 transition">
             Découvrir des profils compatibles
           </button>
         </div>
@@ -67,7 +84,8 @@ export default function QuestionnairePage() {
       return;
     }
     setSaving(true);
-    await saveAnswers(selectedAnswers);
+    const computed = await saveAnswers(selectedAnswers);
+    if (computed) analytics.questionnaireCompleted(computed.primary);
     setSaving(false);
     router.push("/questionnaire/");
   };

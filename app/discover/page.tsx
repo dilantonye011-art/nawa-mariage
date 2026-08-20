@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 function getImageUrl(photo: string | { url?: string } | null | undefined): string {
   if (!photo) return "/default-avatar.svg";
@@ -20,6 +20,7 @@ import { useSearchFilters } from "@/hooks/useSearchFilters";
 import { SearchFilters } from "@/components/SearchFilters";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { useToastContext } from "@/components/ToastProvider";
+import { analytics } from "@/lib/analytics";
 
 export default function DiscoverPage() {
   const { user, loading: authLoading } = useAuth();
@@ -39,6 +40,10 @@ export default function DiscoverPage() {
   useEffect(() => {
     if (mounted && !authLoading && !user) router.push("/login/");
   }, [mounted, authLoading, user, router]);
+
+  useEffect(() => {
+    if (mounted && user) analytics.discoverViewed();
+  }, [mounted, user]);
 
   // Réinitialiser l'index quand les filtres changent
   useEffect(() => {
@@ -247,7 +252,3 @@ export default function DiscoverPage() {
     </div>
   );
 }
-
-
-
-

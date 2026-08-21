@@ -1,15 +1,16 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Heart, MessageCircle, User, Search, LogOut, Menu, X } from "lucide-react";
+import { Heart, MessageCircle, User, Search, LogOut, Menu, X, LifeBuoy } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
   { href: "/discover", label: "Decouvrir", icon: Search },
   { href: "/matches", label: "Matchs", icon: Heart },
   { href: "/messages", label: "Messages", icon: MessageCircle },
+  { href: "/support", label: "Support", icon: LifeBuoy },
   { href: "/profile", label: "Profil", icon: User },
 ];
 
@@ -68,4 +69,3 @@ export function Navbar() {
     </nav>
   );
 }
-

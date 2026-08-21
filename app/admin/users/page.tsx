@@ -7,10 +7,12 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { Shield, ShieldCheck, ShieldAlert, ArrowLeft, Search } from "lucide-react";
 import type { User } from "@/types";
+import { useToastContext } from "@/components/ToastProvider";
 
 export default function AdminUsersPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
+  const { success, error: toastError } = useToastContext();
   const [users, setUsers] = useState<User[]>([]);
   const [filter, setFilter] = useState<"all" | "pending" | "verified" | "none">("all");
   const [search, setSearch] = useState("");
@@ -31,13 +33,25 @@ export default function AdminUsersPage() {
   };
 
   const verifyUser = async (userId: string) => {
-    await updateDoc(doc(db, "users", userId), { verificationStatus: "verified" });
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, verificationStatus: "verified" } : u));
+    try {
+      await updateDoc(doc(db, "users", userId), { verificationStatus: "verified" });
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, verificationStatus: "verified" } : u));
+      success("Utilisateur verifie");
+    } catch (e: any) {
+      console.error("Erreur verification:", e);
+      toastError(`Echec de la verification: ${e.message || e.code || "erreur inconnue"}`);
+    }
   };
 
   const rejectUser = async (userId: string) => {
-    await updateDoc(doc(db, "users", userId), { verificationStatus: "none" });
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, verificationStatus: "none" } : u));
+    try {
+      await updateDoc(doc(db, "users", userId), { verificationStatus: "none" });
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, verificationStatus: "none" } : u));
+      success("Verification rejetee");
+    } catch (e: any) {
+      console.error("Erreur rejet:", e);
+      toastError(`Echec du rejet: ${e.message || e.code || "erreur inconnue"}`);
+    }
   };
 
   const filteredUsers = users.filter(u => {

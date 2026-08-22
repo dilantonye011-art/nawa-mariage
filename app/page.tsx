@@ -161,6 +161,7 @@ export default function LandingPage() {
       {/* FOOTER */}
       <footer className="py-8 bg-gray-900 text-gray-400 text-center text-sm">
         <p> Nawa Mariage. Trouvez l&apos;amour pour le mariage.</p>
+        <Link href="/rencontre/" className="text-primary-400 hover:text-primary-300 transition">Nawa dans votre pays</Link>
       </footer>
     </div>
   );

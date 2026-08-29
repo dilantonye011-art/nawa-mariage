@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 function getImageUrl(photo: string | { url?: string } | null | undefined): string {
   if (!photo) return "/default-avatar.svg";
@@ -163,7 +163,7 @@ export default function DiscoverPage() {
                   {/* Photo */}
                   <div className="relative h-3/5">
                     <Image
-                      src={currentProfile.photos?.find(p => p.isMain)?.url || currentProfile.photos?.[0]?.url || "/default-avatar.png"}
+                      src={currentProfile.photos?.find(p => p.isMain)?.url || currentProfile.photos?.[0]?.url || "/default-avatar.svg"}
                       alt={currentProfile.name}
                       fill
                       className="object-cover"
@@ -247,7 +247,3 @@ export default function DiscoverPage() {
     </div>
   );
 }
-
-
-
-

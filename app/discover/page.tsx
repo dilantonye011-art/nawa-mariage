@@ -168,7 +168,7 @@ export default function DiscoverPage() {
                   {/* Photo */}
                   <div className="relative h-3/5">
                     <Image
-                      src={currentProfile.photos?.find(p => p.isMain)?.url || getImageUrl(currentProfile.photos?.[0]) || "/default-avatar.png"}
+                      src={currentProfile.photos?.find(p => p.isMain)?.url || getImageUrl(currentProfile.photos?.[0]) || "/default-avatar.svg"}
                       alt={currentProfile.name}
                       fill
                       className="object-cover"

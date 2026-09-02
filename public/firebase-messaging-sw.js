@@ -3,12 +3,12 @@ importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey: "TA_CLE_API",
+  apiKey: "AIzaSyANoD2AcMC909tdgLGVt33mCQdT2JuY2IA",
   authDomain: "nawa-mariage.firebaseapp.com",
   projectId: "nawa-mariage",
-  storageBucket: "nawa-mariage.appspot.com",
-  messagingSenderId: "TON_SENDER_ID",
-  appId: "TON_APP_ID"
+  storageBucket: "nawa-mariage.firebasestorage.app",
+  messagingSenderId: "380451898758",
+  appId: "1:380451898758:web:6735b168f624cccf8e1807"
 });
 
 const messaging = firebase.messaging();

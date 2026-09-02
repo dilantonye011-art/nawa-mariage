@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getAdminDb, getAdminMessaging } from "@/lib/firebase-admin";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(req: NextRequest) {
+  try {
+    const { title, body, url, requesterId } = await req.json();
+    if (!title || !body) {
+      return NextResponse.json({ error: "title et body sont requis" }, { status: 400 });
+    }
+
+    const adminDb = getAdminDb();
+    const adminMessaging = getAdminMessaging();
+
+    // Verifie que celui qui demande l'envoi est bien admin, cote serveur
+    // (ne jamais faire confiance a une verification uniquement client).
+    const requesterDoc = await adminDb.collection("users").doc(requesterId || "").get();
+    if (!requesterDoc.exists || requesterDoc.data()?.isAdmin !== true) {
+      return NextResponse.json({ error: "Non autorise" }, { status: 403 });
+    }
+
+    const usersSnap = await adminDb.collection("users").get();
+    const tokens: string[] = [];
+    usersSnap.forEach((doc) => {
+      const t = doc.data().fcmTokens as string[] | undefined;
+      if (t?.length) tokens.push(...t);
+    });
+
+    if (tokens.length === 0) {
+      return NextResponse.json({ success: true, sent: 0, message: "Aucun appareil inscrit aux notifications." });
+    }
+
+    // FCM limite a 500 tokens par appel multicast - on decoupe en lots.
+    let successCount = 0;
+    let failureCount = 0;
+    const invalidTokens: string[] = [];
+
+    for (let i = 0; i < tokens.length; i += 500) {
+      const batch = tokens.slice(i, i + 500);
+      const response = await adminMessaging.sendEachForMulticast({
+        tokens: batch,
+        notification: { title, body },
+        webpush: {
+          notification: {
+            icon: "https://nawa-mariage.vercel.app/icon-192x192.png",
+            badge: "https://nawa-mariage.vercel.app/badge-72x72.png",
+          },
+          fcmOptions: { link: url || "https://nawa-mariage.vercel.app" },
+        },
+      });
+      successCount += response.successCount;
+      failureCount += response.failureCount;
+      response.responses.forEach((r, idx) => {
+        if (!r.success) invalidTokens.push(batch[idx]);
+      });
+    }
+
+    // Nettoyage: retire les tokens invalides/expires des profils utilisateurs
+    if (invalidTokens.length > 0) {
+      const batchWrite = adminDb.batch();
+      usersSnap.forEach((doc) => {
+        const t = doc.data().fcmTokens as string[] | undefined;
+        if (t?.some((tok) => invalidTokens.includes(tok))) {
+          batchWrite.update(doc.ref, {
+            fcmTokens: t.filter((tok) => !invalidTokens.includes(tok)),
+          });
+        }
+      });
+      await batchWrite.commit();
+    }
+
+    return NextResponse.json({ success: true, sent: successCount, failed: failureCount });
+  } catch (e: any) {
+    console.error("Erreur broadcast notification:", e);
+    return NextResponse.json({ error: e.message }, { status: 500 });
+  }
+}

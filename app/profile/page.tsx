@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { VerificationBadge } from "@/components/VerificationBadge";
 import { VerificationModal } from "@/components/VerificationModal";
 import { PhotoGallery } from "@/components/PhotoGallery";
+import { NotificationOptIn } from "@/components/NotificationOptIn";
 import { Photo } from "@/hooks/useProfilePhotos";
 import { useCompatibility } from "@/hooks/useCompatibility";
 
@@ -118,6 +119,9 @@ export default function ProfilePage() {
           </div>
           <ChevronRight className="w-5 h-5 text-gray-500" />
         </Link>
+
+        {/* NOTIFICATIONS */}
+        <NotificationOptIn userId={user.id} />
 
         {/* VÉRIFICATION D'IDENTITÉ */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
